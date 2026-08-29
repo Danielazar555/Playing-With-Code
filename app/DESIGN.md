@@ -151,6 +151,30 @@ maps with **no online provisioning step** and at a fraction of the storage of
 cached tiles, so swapping in a heavier tile-caching scheme would be a regression
 for this use case. Documented here so the choice is explicit.
 
+## 5c. Skill-driven roast v2 (imported UI/UX skills)
+
+Imported five well-recommended skills (see `.claude/skills/SOURCES.md`) and used
+them as a review rubric: Anthropic's **frontend-design** and **webapp-testing**
+and **web-artifacts-builder**, the community **ux-designer** (WCAG 2.2 AA
+rubric), and the **frontend-design-toolkit** collection. What they flagged, and
+what changed:
+
+| Roast (skill) | Finding | Fix |
+|---|---|---|
+| **frontend-design** | Design sat in a known "AI-slop" bucket — near-black bg + one accent, with type as a neutral system-sans delivery vehicle (no personality). | Added a **serif display face** (`--display`, system serifs only so it stays offline) on headlines, day titles, section headers and place names — an editorial travel-journal voice that grounds the design in its subject. |
+| **ux-designer / a11y** | **No visible keyboard focus** anywhere (WCAG 2.4.7). | Global `:focus-visible` ring; a dedicated focus style for SVG map pins. |
+| **ux-designer / a11y** | Clickable **cards, hub chips, mini-pins, checklist rows and map pins weren't keyboard-operable** (WCAG 2.1.1). | `role`/`tabindex` + a delegated Enter/Space handler; pins made focusable with `aria-label` and their own key handler; checklist rows are `role="checkbox"` with live `aria-checked`. |
+| **ux-designer / contrast** | Measured contrast: `--dim` muted text and the coral/violet chip labels were **below 4.5:1** on cards. | Lightened `--dim` and added AA-verified text tints (`--teal-t`/`--coral-t`/`--violet-t`); re-checked every pair with a contrast script. |
+| **ux-designer / motion** | Route-draw animation and card transitions ignored **`prefers-reduced-motion`**. | Global reduced-motion media query neutralises animation/transition. |
+| **ux-designer / touch** | Several targets under the **44px** minimum (zoom buttons, filter/mode/quick chips). | Bumped to ≥44px (zoom) / ≥40px (chip rows); only the non-actionable countdown readout remains smaller by design. |
+| **ux-designer / type** | Body text at 12–13px, below the **16px** readability floor. | Base to 16px; day/tip/popup/cash body text bumped to 13.5–15px. |
+| **webapp-testing** | — | Confirmed the practice already in use: every change is verified by driving the app in headless Chromium at 390×844 and screenshotting; this pass added keyboard-path and touch-target assertions. |
+
+Verified after v2: 0 console/page errors; Tab reaches cards with a visible ring;
+Enter toggles the checklist (`aria-checked` flips) and opens a focused pin's
+card; contrast script passes; only one sub-40px element remains (an
+informational readout, not a touch action).
+
 ## 6. Architecture / files
 
 ```

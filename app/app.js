@@ -415,6 +415,7 @@
       LS.set("checks", state.checks);
       renderTips();
     }));
+    a11y();
   }
 
   /* ======================= navigation ======================= */
@@ -438,7 +439,30 @@
     view.querySelectorAll("[data-poi]").forEach(el => el.addEventListener("click", (e) => {
       e.stopPropagation(); pendingPoi = el.dataset.poi; go("map");
     }));
+    a11y();
   }
+
+  // Make non-native clickable elements keyboard-operable (WCAG 2.1.1).
+  function a11y() {
+    view.querySelectorAll("[data-goday],[data-gohub],[data-poi]").forEach(el => {
+      if (el.tagName === "BUTTON" || el.dataset.a11y) return;
+      el.dataset.a11y = "1";
+      el.setAttribute("role", "button");
+      el.setAttribute("tabindex", "0");
+    });
+    view.querySelectorAll(".check").forEach(el => {
+      el.setAttribute("role", "checkbox");
+      el.setAttribute("tabindex", "0");
+      el.setAttribute("aria-checked", el.classList.contains("done") ? "true" : "false");
+    });
+  }
+  // One delegated key handler: Enter/Space activates role=button/checkbox.
+  view.addEventListener("keydown", (e) => {
+    if (e.key !== "Enter" && e.key !== " ") return;
+    const t = e.target.closest('[role="button"],[role="checkbox"]');
+    // SVG elements (map pins) have no .click(); they handle their own keydown.
+    if (t && view.contains(t) && typeof t.click === "function") { e.preventDefault(); t.click(); }
+  });
 
   // countdown ticker
   setInterval(paintTop, 60000);

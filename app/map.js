@@ -202,9 +202,13 @@
       const c = el("circle", {
         class: "pin" + (p.star ? " star" : ""),
         cx:x, cy:y, r:0.01, fill: meta.c,
-        "data-id": id
+        "data-id": id, tabindex: "0", role: "button",
+        "aria-label": p.name + " — " + p.cat + (p.star ? ", highlight" : "")
       }, this.gPins);
       c.addEventListener("click", (e) => { e.stopPropagation(); this.openPoi(id); });
+      c.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); this.openPoi(id); }
+      });
     }
     this._scalePins();
   };
