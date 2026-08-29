@@ -255,6 +255,28 @@ Kept the whole quality floor intact (keyboard focus, reduced-motion, ≥44px,
 offline). Verified across every tab in headless Chromium: 0 errors, photo
 capture + stamps still work, still boots offline.
 
+## 5g. Map redesign + full emoji sweep (with UI/UX Pro Max)
+
+Installed four more skills at the user's request — **ui-ux-pro-max** and its
+**design** companion (`nextlevelbuilder/ui-ux-pro-max-skill`), plus the
+**superpowers** brainstorming + writing-plans "planner" skills
+(`obra/superpowers-skills`); provenance in `.claude/skills/SOURCES.md`. UI/UX
+Pro Max's priority rules (esp. #4 "SVG icons — no emoji") drove this pass:
+
+- **Map carried into the chart system**: deep-ocean palette matching the app,
+  a nautical-chart graticule over the sea, warm-brass route lines, category pin
+  colors on the new palette, glass mode/filter chips and a gradient popup with a
+  proper Save chip and mono price.
+- **Full emoji sweep**: every remaining emoji-as-icon became an SVG from the
+  sprite — the per-day nudge, all 11 tip cards, the Journey chip, the cash-plan
+  draw line, the Tao callout, the hero location pin. Removed the giant emoji
+  hero watermark (the bathymetric rings already carry that texture). Emoji now
+  survive only as genuinely-expressive content (toasts, packing/phrase group
+  labels).
+
+Verified across every tab in headless Chromium (incl. a faked mid-trip date to
+exercise the nudge): 0 errors, photo capture + stamps intact, boots offline.
+
 ## 6. Architecture / files
 
 ```

@@ -24,15 +24,15 @@
   }
 
   const CAT = {
-    beach:     { c:"#e8b23a", g:"◗" },
-    lagoon:    { c:"#2ea9c9", g:"❍" },
-    viewpoint: { c:"#c065b8", g:"▲" },
-    food:      { c:"#e2603a", g:"●" },
-    dive:      { c:"#2f7dd1", g:"✦" },
-    transport: { c:"#8aa0b6", g:"✈" },
-    camp:      { c:"#e8823a", g:"⌂" },
-    town:      { c:"#5a6b7e", g:"◉" },
-    springs:   { c:"#d9534f", g:"♨" }
+    beach:     { c:"#e6b45c", g:"◗" },
+    lagoon:    { c:"#2bb8c6", g:"❍" },
+    viewpoint: { c:"#c884d6", g:"▲" },
+    food:      { c:"#ff6f5b", g:"●" },
+    dive:      { c:"#4aa6d8", g:"✦" },
+    transport: { c:"#8caeaa", g:"✈" },
+    camp:      { c:"#e0894a", g:"⌂" },
+    town:      { c:"#6f8c93", g:"◉" },
+    springs:   { c:"#ff8f7d", g:"♨" }
   };
 
   function el(tag, attrs, parent) {

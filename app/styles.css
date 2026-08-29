@@ -118,7 +118,8 @@ a{color:var(--aqua)}
   font-family:var(--mono);position:relative}
 .hero h2{margin:8px 0 6px;font-size:31px;line-height:1.08;font-family:var(--display);letter-spacing:.2px;
   font-weight:600;position:relative}
-.hero .where{color:#bfe0e4;font-size:13px;margin-bottom:11px;position:relative;font-weight:500}
+.hero .where{color:#bfe0e4;font-size:13px;margin-bottom:11px;position:relative;font-weight:500;display:flex;align-items:center;gap:5px}
+.hero .where svg{color:#8fdfec}
 .hero p{color:#d3e6e6;margin:0;position:relative;font-size:14.5px;line-height:1.55}
 .hero .wave{position:absolute;right:2px;bottom:-30px;font-size:100px;opacity:.09}
 .pill-row{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px;position:relative}
@@ -165,50 +166,56 @@ a{color:var(--aqua)}
    MAP
    ========================================================= */
 .map-host{position:relative;width:100%;height:100%;touch-action:none;overflow:hidden;
-  background:radial-gradient(120% 120% at 50% 0%,#12314a,#0a1626)}
+  background:radial-gradient(130% 120% at 50% -5%,#123039,#0a1b23 55%,#06141b)}
+/* nautical-chart graticule over the sea — ties the map to the app's chart voice */
+.map-host::after{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;
+  background-image:linear-gradient(#ffffff07 1px,transparent 1px),linear-gradient(90deg,#ffffff07 1px,transparent 1px);
+  background-size:44px 44px;background-position:center;
+  -webkit-mask-image:radial-gradient(120% 100% at 50% 30%,#000 60%,transparent 100%);
+          mask-image:radial-gradient(120% 100% at 50% 30%,#000 60%,transparent 100%)}
 .map-host.grab{cursor:grabbing}
-.map-svg{width:100%;height:100%;display:block}
-.map-svg .sea{fill:#0c2033}
-.map-svg .land path{fill:#20402c;stroke:#356b45;stroke-width:0;paint-order:stroke;
+.map-svg{width:100%;height:100%;display:block;position:relative;z-index:1}
+.map-svg .sea{fill:#0a1c25}
+.map-svg .land path{fill:#183430;stroke:#2f6350;stroke-width:0;paint-order:stroke;
   stroke-linejoin:round}
-.map-svg .route .halo{stroke:#0a1626;stroke-linecap:round;stroke-linejoin:round;opacity:.6}
-.map-svg .route .line{stroke:#f0c04a;stroke-linecap:round;stroke-linejoin:round;
-  filter:drop-shadow(0 0 3px #f0c04a66)}
-.map-svg circle.pin{stroke:#0a1626;cursor:pointer;transition:r .1s}
+.map-svg .route .halo{stroke:#06141b;stroke-linecap:round;stroke-linejoin:round;opacity:.6}
+.map-svg .route .line{stroke:#e6b45c;stroke-linecap:round;stroke-linejoin:round;
+  filter:drop-shadow(0 0 3px #e6b45c66)}
+.map-svg circle.pin{stroke:#06141b;cursor:pointer;transition:r .1s}
 .map-svg circle.pin.dim{opacity:.28}
 .map-svg circle.pin.sel{stroke:#fff}
-.map-svg circle.hub{stroke:#eaf2f8;cursor:pointer}
-.map-svg .hub-label{fill:#eaf2f8;stroke:#0a1626;stroke-linejoin:round;paint-order:stroke;
-  font-weight:700;dominant-baseline:middle;pointer-events:none}
+.map-svg circle.hub{stroke:#eff5f2;cursor:pointer}
+.map-svg .hub-label{fill:#eff5f2;stroke:#06141b;stroke-linejoin:round;paint-order:stroke;
+  font-weight:700;dominant-baseline:middle;pointer-events:none;font-family:var(--display)}
 
 .map-ctl{position:absolute;right:12px;top:12px;display:flex;flex-direction:column;gap:6px;z-index:4}
-.map-ctl button{width:44px;height:44px;border-radius:11px;background:#0d1826dd;border:1px solid var(--line);
-  color:var(--ink);font-size:19px;font-weight:600;display:flex;align-items:center;justify-content:center}
+.map-ctl button{width:44px;height:44px;border-radius:11px;background:#0c222bdd;border:1px solid var(--edge);
+  color:var(--ink);font-size:19px;font-weight:600;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px)}
 .map-topbar{position:absolute;left:0;right:0;top:0;z-index:4;padding:10px 12px;
-  background:linear-gradient(180deg,#0a1626dd,#0a162600);pointer-events:none}
+  background:linear-gradient(180deg,#06141bee,#06141b00);pointer-events:none}
 .map-modes{display:flex;gap:6px;pointer-events:auto;overflow-x:auto;padding-bottom:2px}
 .map-modes::-webkit-scrollbar{display:none}
-.mode-chip{flex:0 0 auto;background:#0d1826dd;border:1px solid var(--line);color:var(--mut);
+.mode-chip{flex:0 0 auto;background:#0c222bdd;border:1px solid var(--edge);color:var(--mut);backdrop-filter:blur(8px);
   border-radius:999px;padding:0 15px;min-height:44px;display:flex;align-items:center;font-size:13px;font-weight:600;white-space:nowrap}
-.mode-chip.on{background:var(--aqua);border-color:var(--aqua);color:#04141c}
+.mode-chip.on{background:var(--aqua);border-color:var(--aqua);color:#04222a;font-weight:700}
 .map-filters{position:absolute;left:0;right:0;bottom:calc(var(--tab-h) + var(--safe-b));z-index:4;
-  padding:10px 12px 12px;background:linear-gradient(0deg,#0a1626f5,#0a162600)}
+  padding:10px 12px 12px;background:linear-gradient(0deg,#06141bf5,#06141b00)}
 .filter-row{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px}
 .filter-row::-webkit-scrollbar{display:none}
-.fchip{flex:0 0 auto;background:#0d1826cc;border:1px solid var(--line);color:var(--mut);
+.fchip{flex:0 0 auto;background:#0c222bcc;border:1px solid var(--edge);color:var(--mut);backdrop-filter:blur(8px);
   border-radius:999px;padding:0 13px;min-height:40px;font-size:12.5px;font-weight:600;white-space:nowrap;
   display:flex;align-items:center;gap:6px}
 .fchip .dot{width:8px;height:8px;border-radius:50%}
 .fchip.off{opacity:.4}
 
-.map-pop{position:absolute;z-index:5;width:min(260px,72vw);background:var(--card);
-  border:1px solid var(--line);border-radius:14px;padding:12px 13px;
-  box-shadow:0 12px 40px #0009}
+.map-pop{position:absolute;z-index:5;width:min(260px,72vw);background:linear-gradient(180deg,#173a44,#0f2a33);
+  border:1px solid var(--edge);border-radius:14px;padding:13px 14px;
+  box-shadow:0 18px 50px -12px #000d}
 .map-pop h4{margin:2px 0 4px;font-size:16px;font-family:var(--display)}
 .map-pop p{margin:6px 0 0;font-size:13.5px;color:var(--mut);line-height:1.5}
 .pop-cat{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
-.pop-fee{font-size:12px;color:var(--gold);margin-top:4px;font-weight:600}
-.pop-rec{font-size:12px;color:var(--teal);font-style:italic;margin-top:6px;line-height:1.4}
+.pop-fee{font-size:12px;color:var(--gold);margin-top:4px;font-weight:600;font-family:var(--mono)}
+.pop-rec{font-size:12px;color:var(--teal-t);font-style:italic;margin-top:6px;line-height:1.4}
 .pop-act{display:flex;gap:14px;flex-wrap:wrap}
 
 /* cash plan */
@@ -224,7 +231,7 @@ a{color:var(--aqua)}
 .risk-Moderate{background:#2f7dd122;color:#6fb3f0}
 .cash-body{flex:1;min-width:0}
 .cash-hub{font-weight:700;font-size:15px;font-family:var(--display)}
-.cash-draw{font-size:13px;color:var(--teal-t);font-weight:600;margin-top:1px}
+.cash-draw{font-size:13px;color:var(--teal-t);font-weight:600;margin-top:1px;display:flex;align-items:center;gap:5px}
 .cash-note{font-size:12px;color:var(--mut);margin-top:2px}
 .pop-act{margin-top:9px}
 .pop-act a{font-size:12.5px;font-weight:600;text-decoration:none}
@@ -447,3 +454,16 @@ a{color:var(--aqua)}
   box-shadow:0 0 6px -1px currentColor}
 .kit-grp{display:flex;align-items:center;gap:8px}
 .grp-dot{width:8px;height:8px;border-radius:50%;display:inline-block;box-shadow:0 0 7px -1px currentColor}
+
+/* ---- nudge & tip icon chips (SVG, replacing emoji per UI/UX Pro Max rule #4) ---- */
+.nudge-ic{width:40px;height:40px;flex:0 0 auto;border-radius:11px;display:flex;align-items:center;justify-content:center;
+  background:#2bb8c614;border:1px solid #2bb8c630;color:var(--aqua)}
+.tip .tip-ic{width:38px;height:38px;flex:0 0 auto;border-radius:10px;display:flex;align-items:center;justify-content:center;
+  background:#e6b45c14;border:1px solid #e6b45c33;color:var(--sun);text-align:initial}
+
+/* map popup save button — match the text-link actions */
+.pop-act{align-items:center}
+.pop-act a{color:var(--aqua);text-decoration:none;font-size:13px;font-weight:600}
+.pop-save{background:#2bb8c614;border:1px solid #2bb8c440;color:var(--aqua);
+  border-radius:9px;padding:7px 13px;font-size:12.5px;font-weight:700;white-space:nowrap}
+.pop-save:active{background:#2bb8c422}

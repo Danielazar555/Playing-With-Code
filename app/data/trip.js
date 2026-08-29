@@ -165,17 +165,17 @@ window.TRIP = {
 
   /* ---- Tips (offline reference) ---- */
   tips: [
-    { icon:"💵", t:"Cash is king", b:"El Nido & island ATMs are unreliable and often empty, with low withdrawal caps and big fees. Draw plenty of pesos in Cebu for all of Palawan + Tao extras." },
-    { icon:"📶", t:"Connectivity", b:"Grab a Globe/Smart eSIM at Cebu airport. Coron & El Nido have patchy data; the Tao expedition has none — download this app + offline maps before you sail." },
-    { icon:"🎒", t:"Domestic baggage", b:"Small planes (CEB↔Coron, El Nido↔CEB) cap checked bags at ~10–15 kg and overbook. Book flights early, travel light, keep valuables in your carry-on." },
-    { icon:"🛶", t:"Pack for Tao", b:"Dry bag, reef shoes, reef-safe sunscreen, a power bank (no reliable charging), quick-dry clothes, cash for drinks/soap. Grab Tao's mosquito oil at the Coron office." },
-    { icon:"🌅", t:"Beat the crowds", b:"Kayangan before 8am; El Nido Tour A on the earliest slot. The single biggest quality-of-trip lever is going early." },
-    { icon:"🌦️", t:"Weather window", b:"February is Palawan's prime — dry, calm seas, sun. That's why this front-loads Palawan and skips Pacific-facing Siargao (wettest now)." },
-    { icon:"🧴", t:"Reef-safe only", b:"Many sites ban regular sunscreen. Bring mineral/reef-safe or cover up with a rash guard — you'll be turned away otherwise." },
-    { icon:"💸", t:"Eco & park fees", b:"Budget for repeat fees: Coron eco fee ₱200 (10 days), Kayangan ₱300, El Nido eco fee ₱400 (10 days), + per-lagoon fees. Keep small bills." },
-    { icon:"🏧", t:"Decline DCC at every terminal", b:"ATMs and card machines ask to charge in your home currency (Dynamic Currency Conversion) — always choose Philippine Pesos so your own bank sets the rate. Draw big amounts fee-free at HSBC in Metro Cebu before Palawan." },
-    { icon:"🛥️", t:"Tao is the anchor", b:"Tao doesn't sail daily and sells out months ahead. Pick your expedition date FIRST, then slot Coron & El Nido nights around it. Add the ~$90 booking protection." },
-    { icon:"🩹", t:"Health basics", b:"Bring motion-sickness tablets (boat days), rehydration salts, blister plasters, a basic first-aid kit. Clinics are limited on the islands." }
+    { icon:"💵", ic:"cash", t:"Cash is king", b:"El Nido & island ATMs are unreliable and often empty, with low withdrawal caps and big fees. Draw plenty of pesos in Cebu for all of Palawan + Tao extras." },
+    { icon:"📶", ic:"wifi", t:"Connectivity", b:"Grab a Globe/Smart eSIM at Cebu airport. Coron & El Nido have patchy data; the Tao expedition has none — download this app + offline maps before you sail." },
+    { icon:"🎒", ic:"bag", t:"Domestic baggage", b:"Small planes (CEB↔Coron, El Nido↔CEB) cap checked bags at ~10–15 kg and overbook. Book flights early, travel light, keep valuables in your carry-on." },
+    { icon:"🛶", ic:"boat", t:"Pack for Tao", b:"Dry bag, reef shoes, reef-safe sunscreen, a power bank (no reliable charging), quick-dry clothes, cash for drinks/soap. Grab Tao's mosquito oil at the Coron office." },
+    { icon:"🌅", ic:"sun", t:"Beat the crowds", b:"Kayangan before 8am; El Nido Tour A on the earliest slot. The single biggest quality-of-trip lever is going early." },
+    { icon:"🌦️", ic:"sun", t:"Weather window", b:"February is Palawan's prime — dry, calm seas, sun. That's why this front-loads Palawan and skips Pacific-facing Siargao (wettest now)." },
+    { icon:"🧴", ic:"drop", t:"Reef-safe only", b:"Many sites ban regular sunscreen. Bring mineral/reef-safe or cover up with a rash guard — you'll be turned away otherwise." },
+    { icon:"💸", ic:"cash", t:"Eco & park fees", b:"Budget for repeat fees: Coron eco fee ₱200 (10 days), Kayangan ₱300, El Nido eco fee ₱400 (10 days), + per-lagoon fees. Keep small bills." },
+    { icon:"🏧", ic:"cash", t:"Decline DCC at every terminal", b:"ATMs and card machines ask to charge in your home currency (Dynamic Currency Conversion) — always choose Philippine Pesos so your own bank sets the rate. Draw big amounts fee-free at HSBC in Metro Cebu before Palawan." },
+    { icon:"🛥️", ic:"anchor", t:"Tao is the anchor", b:"Tao doesn't sail daily and sells out months ahead. Pick your expedition date FIRST, then slot Coron & El Nido nights around it. Add the ~$90 booking protection." },
+    { icon:"🩹", ic:"plus", t:"Health basics", b:"Bring motion-sickness tablets (boat days), rehydration salts, blister plasters, a basic first-aid kit. Clinics are limited on the islands." }
   ],
 
   /* ---- Booking checklist ---- */

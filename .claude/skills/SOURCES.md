@@ -22,6 +22,20 @@ Philippines trip app. The concrete changes are recorded in `app/DESIGN.md`
 keyboard-operable cards/pins/checklist, a serif display face for editorial type
 personality (offline-safe, no web fonts), and larger base body text.
 
+## Added later (user request): planner, superpowers, UI/UX Pro Max
+
+| Skill | Source | Role |
+|---|---|---|
+| **ui-ux-pro-max** | `nextlevelbuilder/ui-ux-pro-max-skill` | Design-intelligence rulebook — priority table (accessibility, touch, style, type/color, motion…), anti-patterns (incl. "emoji as icons"), and a searchable palette/font/UX database. Used as the lens for the map redesign + emoji cleanup. |
+| **ui-ux-pro-max-design** | same repo (`design` skill) | Brand identity / design-token / asset-generation companion. |
+| **superpowers-brainstorming** | `obra/superpowers-skills` | Socratic idea-refinement before building ("planner" front half). |
+| **superpowers-writing-plans** | `obra/superpowers-skills` | Turns a design into bite-sized implementation tasks ("planner" back half). |
+
+Note: the `ui-ux-pro-max` search tool (`scripts/search.py`) and its CSV
+databases live in the upstream repo and were not vendored — only the SKILL.md
+entrypoints are here, which carry the rule tables and workflow. To use the live
+search, clone the upstream repo. Everything else in this doc still applies.
+
 Only the `SKILL.md` entrypoints are vendored here (progressive-disclosure —
 the reference sub-files of `ux-designer` live in its upstream repo). Upstream:
 - https://github.com/anthropics/skills

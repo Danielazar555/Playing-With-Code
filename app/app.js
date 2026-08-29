@@ -116,7 +116,7 @@
     if (d === 1) return "✈ tomorrow!";
     const idx = todayIndex();
     if (idx >= 0 && idx < T.days.length) return "Day " + (idx + 1) + "/" + T.days.length;
-    return "🏠 home";
+    return "Home";
   }
 
   // ---- top bar ----
@@ -155,13 +155,13 @@
   }
   // Personalised nudge from the day's character.
   const NUDGE = {
-    highlight:{i:"🔥",t:"Big one today",b:"This is a headline day — go early, go for it, get the shot."},
-    dive:{i:"🤿",t:"Adventure day",b:"Adrenaline on the menu. Warm up, hydrate, then send it."},
-    beach:{i:"🏖️",t:"Slow it down",b:"Beach day. Swim, read, chase the light — no rush."},
-    rest:{i:"😌",t:"Recharge",b:"A rest day is part of the plan. Journal, nap, do your own thing."},
-    expedition:{i:"🛶",t:"Off the grid",b:"No signal, no schedule. Be all the way here — phone away."},
-    travel:{i:"🚐",t:"Moving day",b:"Transit today. Snacks, water, podcasts. Save your energy."},
-    transit:{i:"✈️",t:"On the move",b:"Long haul. Rest when you can; the good part is close."}
+    highlight:{n:"flag",t:"Big one today",b:"This is a headline day — go early, go for it, get the shot."},
+    dive:{n:"wave",t:"Adventure day",b:"Adrenaline on the menu. Warm up, hydrate, then send it."},
+    beach:{n:"sun",t:"Slow it down",b:"Beach day. Swim, read, chase the light — no rush."},
+    rest:{n:"moon",t:"Recharge",b:"A rest day is part of the plan. Journal, nap, do your own thing."},
+    expedition:{n:"boat",t:"Off the grid",b:"No signal, no schedule. Be all the way here — phone away."},
+    travel:{n:"anchor",t:"Moving day",b:"Transit today. Snacks, water, podcasts. Save your energy."},
+    transit:{n:"plane",t:"On the move",b:"Long haul. Rest when you can; the good part is close."}
   };
 
   /* ======================= saved / vault ======================= */
@@ -295,8 +295,7 @@
       const now = new Date();
       const dleft = Math.ceil((DEPART - now) / 86400000);
       const urgent = T.checklist.filter(c => c.urgent && !state.checks[c.id]);
-      html += `<div class="hero"><div class="wave">🌊</div>
-        <div class="eyebrow">Countdown</div>
+      html += `<div class="hero"><div class="eyebrow">Countdown</div>
         <h2>${dleft} days to go</h2>
         <div class="where">${esc(T.meta.subtitle)}</div>
         <p>${esc(T.meta.dates)} · ${T.days.length} days on the ground</p>
@@ -311,21 +310,19 @@
       html += nextThreeDaysCard(0);
     } else if (idx >= T.days.length) {
       const s = questStats();
-      html += `<div class="hero"><div class="wave">🏠</div>
-        <div class="eyebrow">Wrapped</div><h2>Trip complete</h2>
-        <p>You scored ${s.pts} points across ${s.count} adventures. 🌴 Start planning the next one.</p></div>`;
+      html += `<div class="hero"><div class="eyebrow">Wrapped</div><h2>Trip complete</h2>
+        <p>You scored ${s.pts} points across ${s.count} adventures — start planning the next one.</p></div>`;
       html += pointsStrip();
     } else {
       const day = T.days[idx];
       const hub = T.hubs.find(h => h.id === day.hub);
       const n = NUDGE[day.type] || NUDGE.rest;
-      html += `<div class="hero"><div class="wave">🌴</div>
-        <div class="eyebrow">Today · ${esc(day.d)}</div>
+      html += `<div class="hero"><div class="eyebrow">Today · ${esc(day.d)}</div>
         <h2>${esc(day.title)}</h2>
-        <div class="where">${hub ? "📍 " + esc(hub.name) : "In transit"}</div>
+        <div class="where">${hub ? icon("pin-small","ic-sm") + " " + esc(hub.name) : "In transit"}</div>
         <p>${esc(day.body)}</p></div>`;
       html += pointsStrip();
-      html += `<div class="nudge"><div class="ic">${n.i}</div>
+      html += `<div class="nudge"><span class="nudge-ic">${icon(n.n)}</span>
         <div><div class="t">${esc(n.t)}</div><div class="b">${esc(n.b)}</div></div></div>`;
       // today's quests: day's hub + any global not-yet-done
       const todays = questsFor(day.hub).concat(questsFor(null).filter(q => !state.quests[q.id])).slice(0, 4);
@@ -453,7 +450,7 @@
 
     // mode chips: Journey + each hub
     const modes = $("#mapModes");
-    let mh = `<button class="mode-chip on" data-mode="journey">🧭 Journey</button>`;
+    let mh = `<button class="mode-chip on" data-mode="journey">${icon("today","ic-sm")} Journey</button>`;
     T.hubs.forEach(h => { mh += `<button class="mode-chip" data-mode="${h.id}">${esc(h.name)}</button>`; });
     modes.innerHTML = mh;
     modes.addEventListener("click", (e) => {
@@ -545,7 +542,7 @@
             <div class="cash-risk risk-${rk}">${esc(ph.risk)}</div>
             <div class="cash-body">
               <div class="cash-hub">${esc(ph.hub)}</div>
-              <div class="cash-draw">💵 ${esc(ph.draw)} · ${esc(ph.where)}</div>
+              <div class="cash-draw">${icon("cash","ic-sm")} ${esc(ph.draw)} · ${esc(ph.where)}</div>
               <div class="cash-note">${esc(ph.note)}</div>
             </div></div>`;
         }).join("")}
@@ -751,11 +748,11 @@
     return h + `</div>`;
   }
   function bTips() {
-    let h = `<div class="callout"><div class="ic">🛶</div><div>
+    let h = `<div class="callout"><div class="ic">${icon("boat","ic-alert")}</div><div>
       <div class="t">Tao drives the whole schedule</div>
       <div class="b">Pick your Tao date first, then slot Coron & El Nido around it. It sells out months ahead; cancellation is strict — 50% inside 30 days, nothing inside 14.</div></div></div>`;
     T.tips.forEach(t => {
-      h += `<div class="card"><div class="tip"><div class="ic">${t.icon}</div>
+      h += `<div class="card"><div class="tip"><span class="tip-ic">${icon(t.ic||"bulb")}</span>
         <div><div class="t">${esc(t.t)}</div><div class="b">${esc(t.b)}</div></div></div></div>`;
     });
     return h;
