@@ -128,6 +128,29 @@ the service-worker cache** (the make-or-break requirement for the Tao days).
 
 ---
 
+## 5b. Enrichment pass (curated highlights + cash blueprint)
+
+Two supplied assets were folded in:
+
+- **`philippines_highlights.csv`** → every matching point of interest gained a
+  curated **Google Maps link** (used as the pin's "Open in Maps" target when
+  present), an **official/booking URL** ("Book / info" action on the card), a
+  one-line **review recommendation** (shown as a quote), and sharper prices.
+  Two **food pins** that were missing — *Levine's Rooftop* (Coron) and *Bella
+  Vita Pizza* (El Nido) — were added, so the map's `food` filter is now
+  populated and both appear on their respective days.
+- **Operational blueprint** → a new **Cash plan** module on the Money tab: four
+  rules (draw fee-free at HSBC Cebu; decline DCC; expect card surcharges;
+  islands run dry) plus a per-leg liquidity forecast with a risk badge, a
+  recommended draw amount, and where to get it. A matching "Decline DCC" tip was
+  added, and airport notes now flag AirSWIFT's 7 kg hand-luggage limit.
+
+**One blueprint recommendation was deliberately *not* adopted:** IndexedDB
+raster-tile caching. The vector-coastline renderer already gives fully offline
+maps with **no online provisioning step** and at a fraction of the storage of
+cached tiles, so swapping in a heavier tile-caching scheme would be a regression
+for this use case. Documented here so the choice is explicit.
+
 ## 6. Architecture / files
 
 ```

@@ -276,6 +276,25 @@
       <div class="fx-note">Tipping isn't obligatory in the Philippines — 5–10% for good service is generous.</div>
     </div>
 
+    <div class="calc">
+      <h3>🏧 Cash plan — draw pesos before the islands</h3>
+      <div class="cash-rules">
+        ${T.cash.rules.map(r => `<div class="cash-rule"><span class="n">▹</span><span>${esc(r)}</span></div>`).join("")}
+      </div>
+      <div style="margin-top:6px">
+        ${T.cash.phases.map(ph => {
+          const rk = ph.risk.startsWith("Low") ? "Moderate" : ph.risk;
+          return `<div class="cash-phase">
+            <div class="cash-risk risk-${rk}">${esc(ph.risk)}</div>
+            <div class="cash-body">
+              <div class="cash-hub">${esc(ph.hub)}</div>
+              <div class="cash-draw">💵 ${esc(ph.draw)} · ${esc(ph.where)}</div>
+              <div class="cash-note">${esc(ph.note)}</div>
+            </div></div>`;
+        }).join("")}
+      </div>
+    </div>
+
     <div class="calc" id="budCard">
       <h3>💰 Trip budget (per person)</h3>
       <div class="fx-row" style="margin-bottom:12px">

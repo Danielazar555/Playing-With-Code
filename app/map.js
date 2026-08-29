@@ -318,14 +318,17 @@
     if (!p) return;
     this.selectedPoi = id;
     const meta = CAT[p.cat] || CAT.town;
+    const mapHref = p.url || ("https://www.google.com/maps/search/?api=1&query=" + p.lat + "," + p.lng);
     this.pop.innerHTML =
       `<button class="pop-x" aria-label="Close">×</button>` +
       `<div class="pop-cat" style="color:${meta.c}">${meta.g} ${p.cat}${p.star?' · ★ highlight':''}</div>` +
       `<h4>${p.name}</h4>` +
       (p.fee ? `<div class="pop-fee">💳 ${p.fee}</div>` : "") +
       `<p>${p.note||""}</p>` +
+      (p.rec ? `<p class="pop-rec">“${p.rec}”</p>` : "") +
       `<div class="pop-act">` +
-        `<a target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=${p.lat},${p.lng}">Open in Maps ↗</a>` +
+        `<a target="_blank" rel="noopener" href="${mapHref}">Open in Maps ↗</a>` +
+        (p.book ? `<a target="_blank" rel="noopener" href="${p.book}">Book / info ↗</a>` : "") +
       `</div>`;
     this.pop.hidden = false;
     this.pop.querySelector(".pop-x").addEventListener("click", () => this.closePop());
