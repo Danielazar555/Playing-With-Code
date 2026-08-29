@@ -277,6 +277,38 @@ Pro Max's priority rules (esp. #4 "SVG icons — no emoji") drove this pass:
 Verified across every tab in headless Chromium (incl. a faked mid-trip date to
 exercise the nudge): 0 errors, photo capture + stamps intact, boots offline.
 
+## 5h. UI/UX Pro Max design-system pass
+
+Ran the vendored **ui-ux-pro-max** generator's real tool (fetched `search.py` +
+its data corpus from upstream) against the app:
+`search.py "travel trip planner offline field guide dark nautical" --design-system`.
+Treated the output as a second opinion, not law (the skill says so itself).
+
+**Validated / no change:** it independently recommended **"adventure orange +
+map teal"** (amber accent + teal secondary) for a travel product — essentially
+the **brass (#e6b45c) + lagoon-aqua (#2bb8c6)** pairing we already shipped. Good
+confirmation the palette direction is right.
+
+**Adopted (its pre-delivery checklist flagged two real gaps):**
+- `cursor: pointer` on every clickable — added to all `role="button"`/`checkbox`
+  elements and tappable divs (cards, chips, quest checks, points strip, kit
+  headers), not just native buttons.
+- **Hover states with 150–300ms transitions**, guarded behind `@media (hover:hover)`
+  so touch is unaffected and `prefers-reduced-motion` still neutralises them:
+  cards lift, chips/buttons brighten their edge, the score plate warms.
+
+**Reasoned overrides (documented, not silently ignored):**
+- **Typography "Inter / Inter"** — declined. Inter is the exact overused "safe"
+  face that `frontend-design` and `artifact-design` both name as an AI-slop
+  tell; our Fraunces/Palatino + Archivo + IBM Plex Mono is more distinctive and
+  on-theme. Switching would regress the identity.
+- **Style "Aurora UI" + "Scroll-Triggered Storytelling"** — declined. Mesh-gradient
+  and landing-page-narrative tropes are the wrong genre for an offline field
+  tool; the flat nautical-chart system is the deliberate, subject-grounded choice.
+
+A **Palawan Field Manual** overview artifact was published beforehand as a
+snapshot of the app at this point.
+
 ## 6. Architecture / files
 
 ```

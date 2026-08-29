@@ -467,3 +467,28 @@ a{color:var(--aqua)}
 .pop-save{background:#2bb8c614;border:1px solid #2bb8c440;color:var(--aqua);
   border-radius:9px;padding:7px 13px;font-size:12.5px;font-weight:700;white-space:nowrap}
 .pop-save:active{background:#2bb8c422}
+
+/* =========================================================
+   UI/UX Pro Max pass — adopted checklist items:
+   cursor-pointer on every clickable, and hover states with
+   150–300ms transitions for pointer devices. (Type & style
+   recs from the generator were reasoned-overridden — see DESIGN.md.)
+   ========================================================= */
+[role="button"],[role="checkbox"],.card.tap,.mini-pin,.hub-chip,.kit-head,
+.pts-strip,.quest .q-check,.quest .q-body,.q-cam,.saved-item a,.si-del{cursor:pointer}
+
+@media (hover:hover){
+  .card.tap,.pts-strip,.kit-sec,.quest,.qa-btn,.cal-btn,.mode-chip,.fchip,.map-ctl button,.si-del,.q-cam{
+    transition:border-color .2s ease, background .2s ease, transform .15s ease, box-shadow .2s ease, color .15s ease}
+  .card.tap:hover{border-color:#ffffff28;transform:translateY(-1px)}
+  .pts-strip:hover{border-color:#e6b45c44}
+  .kit-sec:hover{border-color:#2bb8c63a}
+  .quest:hover{border-color:#ffffff22}
+  .qa-btn:hover,.mode-chip:hover:not(.on),.fchip:hover,.map-ctl button:hover{border-color:#2bb8c655;background:#ffffff14}
+  .cal-btn:hover{filter:brightness(1.06)}
+  .mode-chip.on:hover{filter:brightness(1.05)}
+  .q-cam:hover{color:var(--aqua);background:#ffffff0c}
+  .si-del:hover{color:var(--ink)}
+  .pop-save:hover{background:#2bb8c422}
+  a:hover{text-decoration:underline}
+}
