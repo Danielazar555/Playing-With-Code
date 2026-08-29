@@ -175,6 +175,30 @@ Enter toggles the checklist (`aria-checked` flips) and opens a focused pin's
 card; contrast script passes; only one sub-40px element remains (an
 informational readout, not a touch action).
 
+## 5d. From planner to trip hub (one-knife pass)
+
+Turned the app into the single hub the traveller reaches for — replacing the
+scatter of Google Maps, notes/mail, Apple Calendar, a calculator, Translate,
+and self-sent links — **without adding tab sprawl**. The nav stays five tabs;
+the old "Tips" tab became **Kit**, a single accordion drawer.
+
+| Real-world tool it replaces | In-app |
+|---|---|
+| Google Maps / Google knowledge | Map + place cards, with an Open-in-Maps handoff for live nav |
+| Notes / mail (tickets, deck lists) | **Saved & tickets** vault (links, notes, ticket refs) + **Packing lists** |
+| Apple Calendar (itinerary + reminders) | **Add to Calendar** — generates a real `.ics` of all 22 days; Today's "now / next" |
+| Calculator (ILS↔USD↔PHP) | Money tab (converter + tip + cash plan) |
+| Google Translate | offline **Phrasebook** (Tagalog) + a Translate handoff link |
+| Sending yourself links | **＋ Save** on any place, or quick-add note/link |
+| "Gamify it, push me, take photos" | **Quests**: 17 photo/do/culture/rest goals, points, adventure-score bar, celebratory toast |
+| "Goals + when to rest / do hobbies" | Per-day **nudge** on Today, keyed to the day's character (highlight → go for it; rest → recharge; expedition → phone away) |
+
+Design discipline (frontend-design + ux-designer): one accent per component,
+quests grouped by hub, an accordion so the drawer is scannable not a wall, and
+new state (quests, packing, saved, open-section) all persisted in localStorage
+and working fully offline. The gamification stays honest — the Quests lead reads
+"points for the memories, not the metrics."
+
 ## 6. Architecture / files
 
 ```

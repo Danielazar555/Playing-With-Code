@@ -204,5 +204,69 @@ window.TRIP = {
     { k:"Food & drink", lo:350, hi:500 },
     { k:"Tours, scooter, entries", lo:300, hi:450 },
     { k:"Local transport / transfers", lo:120, hi:200 }
+  ],
+
+  /* ---- Quests: gamified goals. cat: photo | do | culture | rest ---- */
+  quests: [
+    { id:"q_tapyas",   hub:"coron",    cat:"photo",   pts:20, t:"Sunset from Mt Tapyas", h:"720 steps, giant cross, the whole bay glowing. Snap it." },
+    { id:"q_kayangan", hub:"coron",    cat:"photo",   pts:30, t:"Kayangan before 8am", h:"Beat the boats. The empty-lagoon shot is the trophy of the trip." },
+    { id:"q_barracuda",hub:"coron",    cat:"do",      pts:25, t:"Feel Barracuda's thermocline", h:"Dive/freedive through the warm→cold layer at ~14m." },
+    { id:"q_malcapuya",hub:"coron",    cat:"photo",   pts:15, t:"Powder sand at Malcapuya", h:"Worth the long boat. Footprints-in-flour photo." },
+    { id:"q_disconnect",hub:"tao",     cat:"rest",    pts:30, t:"One full phone-free Tao day", h:"No signal anyway — lean in. Be all the way here." },
+    { id:"q_stars",    hub:"tao",      cat:"photo",   pts:20, t:"Stars from a Tao camp", h:"No light pollution for miles. Look up." },
+    { id:"q_linapacan",hub:"tao",      cat:"do",      pts:25, t:"Float in Linapacan's clear water", h:"Some of the clearest sea on earth. Just float." },
+    { id:"q_biglagoon",hub:"elnido",   cat:"photo",   pts:30, t:"Kayak into Big Lagoon", h:"Earliest slot. Paddle in before the crowd — mirror water." },
+    { id:"q_nacpan",   hub:"elnido",   cat:"do",      pts:15, t:"Walk to the end of Nacpan", h:"4km of gold. Reach the twin-beach viewpoint." },
+    { id:"q_lascabanas",hub:"elnido",  cat:"photo",   pts:20, t:"Las Cabañas sunset", h:"The postcard. Beach bar, feet in sand, sky on fire." },
+    { id:"q_sardines", hub:"moalboal", cat:"photo",   pts:30, t:"Swim into the sardine ball", h:"Millions of fish, 20m off shore. Dive down into it." },
+    { id:"q_turtle",   hub:"moalboal", cat:"do",      pts:25, t:"Meet a sea turtle", h:"They graze the same reef wall. Keep your distance, say hi." },
+    { id:"q_kawasan",  hub:"moalboal", cat:"do",      pts:25, t:"Take the Kawasan cliff jump", h:"Turquoise pools, real jumps. Send it." },
+    { id:"q_phrases",  hub:null,       cat:"culture", pts:15, t:"Learn 5 Tagalog phrases", h:"Salamat goes a long way. Use the Phrasebook." },
+    { id:"q_dish",     hub:null,       cat:"culture", pts:15, t:"Eat something you can't pronounce", h:"Sinigang? Kinilaw? Point and trust." },
+    { id:"q_sunsets",  hub:null,       cat:"photo",   pts:20, t:"Photograph 3 different sunsets", h:"Coron, El Nido, Moalboal all deliver." },
+    { id:"q_market",   hub:null,       cat:"culture", pts:10, t:"Buy something at a local market", h:"Practise ‘Magkano?’ and a friendly haggle." }
+  ],
+
+  /* ---- Offline Tagalog phrasebook ---- */
+  phrases: [
+    { g:"Basics", items:[
+      ["Hello","Kumusta","koo-mus-TAH"],
+      ["Good morning","Magandang umaga","ma-gan-DANG oo-MA-ga"],
+      ["Good evening","Magandang gabi","ma-gan-DANG ga-BEE"],
+      ["Thank you","Salamat","sa-LA-mat"],
+      ["Thank you so much","Maraming salamat","ma-RA-ming sa-LA-mat"],
+      ["Yes / No","Oo / Hindi","OH-oh / hin-DEE"],
+      ["Please","Pakiusap","pa-ki-OO-sap"],
+      ["Sorry / Excuse me","Pasensya na","pa-SEN-sha na"]
+    ]},
+    { g:"Getting around", items:[
+      ["Where is…?","Nasaan ang…?","NA-sa-an ang"],
+      ["Left / Right","Kaliwa / Kanan","ka-li-WA / KA-nan"],
+      ["Straight ahead","Diretso","di-RET-so"],
+      ["Stop here! (jeepney/trike)","Para!","PA-ra"],
+      ["Bathroom","Banyo / CR","BAN-yo"]
+    ]},
+    { g:"Money & food", items:[
+      ["How much?","Magkano?","mag-KA-no"],
+      ["Too expensive!","Ang mahal!","ang ma-HAL"],
+      ["Water","Tubig","TOO-big"],
+      ["Delicious","Masarap","ma-SA-rap"],
+      ["The bill, please","Yung bill, paki","yoong bill PA-ki"],
+      ["Cheers!","Tagay!","ta-GAI"]
+    ]},
+    { g:"When stuck", items:[
+      ["I don't understand","Hindi ko maintindihan","hin-DEE ko ma-in-tin-di-HAN"],
+      ["Do you speak English?","Marunong ka ba mag-Ingles?","ma-ROO-nong ka ba"],
+      ["Help!","Tulong!","TOO-long"],
+      ["Beautiful","Maganda","ma-gan-DA"]
+    ]}
+  ],
+
+  /* ---- Packing / deck lists ---- */
+  packing: [
+    { g:"📄 Documents", items:["Passport (+ photocopies)","Emirates boarding passes","Domestic e-tickets (CEB↔Coron, El Nido↔CEB)","Tao voucher + booking protection","Travel + dive insurance","USD cash to exchange","Cards (tell bank you're travelling)"] },
+    { g:"🛶 Tao dry-bag (25–40L)", items:["Heavy-duty dry bag","Small 5–10L dry pouch (camera/phone)","Power bank 10–20k mAh (no charging)","Headlamp","Reef booties","Reef-safe sunscreen","Quick-dry clothes","Motion-sickness tablets","Mosquito oil (buy at Tao office)"] },
+    { g:"🤿 Beach & water", items:["Rash guard","Mask + snorkel","GoPro / action cam","Microfiber towel","Flip-flops","Dry phone pouch"] },
+    { g:"💊 Health & misc", items:["First-aid kit","Rehydration salts","Blister plasters","Personal meds","Universal adapter (Type A/C, 220V)","Earplugs"] }
   ]
 };

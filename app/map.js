@@ -333,9 +333,12 @@
       `<div class="pop-act">` +
         `<a target="_blank" rel="noopener" href="${mapHref}">Open in Maps ↗</a>` +
         (p.book ? `<a target="_blank" rel="noopener" href="${p.book}">Book / info ↗</a>` : "") +
+        (this.opts.onSave ? `<button class="pop-save" type="button">★ Save</button>` : "") +
       `</div>`;
     this.pop.hidden = false;
     this.pop.querySelector(".pop-x").addEventListener("click", () => this.closePop());
+    const sv = this.pop.querySelector(".pop-save");
+    if (sv) sv.addEventListener("click", (e) => { e.stopPropagation(); this.opts.onSave(id); });
     this._popTarget = [p.lng, p.lat];
     this._positionPop();
     // pulse the pin
