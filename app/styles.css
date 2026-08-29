@@ -335,3 +335,32 @@ a{color:var(--aqua)}
   font-weight:600;box-shadow:0 8px 30px #0009;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:20;
   max-width:88vw;text-align:center}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* =========================================================
+   JOURNAL + PASSPORT (Polarsteps/Stamp'd-inspired)
+   ========================================================= */
+.quest{gap:9px}
+.q-cam{flex:0 0 auto;width:40px;height:40px;border-radius:10px;background:var(--sea2);border:1px solid var(--line);
+  font-size:15px;display:flex;align-items:center;justify-content:center;color:var(--ink)}
+.q-cam.has{background:#14352a;border-color:#2c6b4a;font-size:11px}
+
+.passport-empty{font-size:13px;color:var(--mut);padding:6px 2px 4px;line-height:1.5}
+.stamp-grid{display:flex;flex-wrap:wrap;gap:8px;margin:2px 0 4px}
+.stamp{width:66px;height:66px;border-radius:50%;border:2px dashed;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:2px;background:#0e2130;transform:rotate(-4deg);
+  box-shadow:inset 0 0 0 3px #0e213099}
+.stamp:nth-child(even){transform:rotate(3deg)}
+.stamp:nth-child(3n){transform:rotate(-1deg)}
+.stamp span{font-size:20px;filter:saturate(.9)}
+.stamp b{font-size:8.5px;text-transform:uppercase;letter-spacing:.04em;font-weight:800}
+
+.j-thumb{background:var(--sea2);border:1px solid var(--line);border-radius:10px;padding:9px 12px;font-size:13px;color:var(--teal-t)}
+.mem{display:flex;gap:11px;align-items:center;background:var(--card2);border:1px solid var(--line);
+  border-radius:12px;padding:9px;margin-bottom:9px}
+.mem-photo{flex:0 0 auto;width:72px;height:72px;border-radius:9px;overflow:hidden;background:#0e2130;
+  display:flex;align-items:center;justify-content:center}
+.mem-photo img{width:100%;height:100%;object-fit:cover;display:block}
+.mem-photo.noimg::after{content:"📷";font-size:22px;opacity:.4}
+.mem-body{flex:1;min-width:0}
+.mem-t{font-weight:700;font-size:14.5px}
+.mem-n{font-size:13px;color:var(--mut);margin-top:3px;line-height:1.45}

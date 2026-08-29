@@ -21,9 +21,79 @@
     quests: LS.get("quests", {}),   // {questId: true}
     packs: LS.get("packs", {}),     // {"group|item": true}
     saved: LS.get("saved", []),     // [{id,kind,text,url,poi,ts}]
+    memories: LS.get("memories", []), // [{id,ts,title,note,questId,photo(idbKey)}]
     kitOpen: LS.get("kitOpen", "quests"),
     tab: "today"
   };
+
+  /* ---- IndexedDB photo store (blobs kept out of localStorage's ~5MB cap) ---- */
+  const IDB = (function () {
+    let dbp;
+    function db() {
+      if (!dbp) dbp = new Promise((res, rej) => {
+        try {
+          const r = indexedDB.open("phtrip", 1);
+          r.onupgradeneeded = () => r.result.createObjectStore("photos");
+          r.onsuccess = () => res(r.result);
+          r.onerror = () => rej(r.error);
+        } catch (e) { rej(e); }
+      });
+      return dbp;
+    }
+    return {
+      async put(k, blob) { const d = await db(); return new Promise((res, rej) => { const t = d.transaction("photos", "readwrite"); t.objectStore("photos").put(blob, k); t.oncomplete = res; t.onerror = () => rej(t.error); }); },
+      async get(k) { const d = await db(); return new Promise((res, rej) => { const t = d.transaction("photos", "readonly"); const q = t.objectStore("photos").get(k); q.onsuccess = () => res(q.result); q.onerror = () => rej(q.error); }); },
+      async del(k) { const d = await db(); return new Promise((res) => { const t = d.transaction("photos", "readwrite"); t.objectStore("photos").delete(k); t.oncomplete = res; t.onerror = res; }); }
+    };
+  })();
+
+  // Downscale a photo client-side so memories stay light and fully local.
+  function downscale(file, max, q) {
+    return new Promise((res) => {
+      const img = new Image(), url = URL.createObjectURL(file);
+      img.onload = () => {
+        URL.revokeObjectURL(url);
+        let w = img.width, h = img.height;
+        const s = Math.min(1, (max || 900) / Math.max(w, h));
+        w = Math.round(w * s); h = Math.round(h * s);
+        const c = document.createElement("canvas"); c.width = w; c.height = h;
+        c.getContext("2d").drawImage(img, 0, 0, w, h);
+        c.toBlob(b => res(b), "image/jpeg", q || 0.72);
+      };
+      img.onerror = () => res(null);
+      img.src = url;
+    });
+  }
+  function pickPhoto(cb) {
+    const inp = document.createElement("input");
+    inp.type = "file"; inp.accept = "image/*"; inp.setAttribute("capture", "environment");
+    inp.onchange = () => cb(inp.files && inp.files[0] ? inp.files[0] : null);
+    inp.click();
+  }
+  async function storePhoto(file) {
+    if (!file) return null;
+    try { const b = await downscale(file); if (!b) return null; const key = "p" + Date.now() + Math.floor(Math.random()*99); await IDB.put(key, b); return key; }
+    catch (e) { return null; }
+  }
+  function addMemory(m) {
+    m.id = "m" + Date.now() + Math.floor(Math.random()*99); m.ts = m.ts || Date.now();
+    state.memories.unshift(m); LS.set("memories", state.memories);
+  }
+  async function delMemory(id) {
+    const m = state.memories.find(x => x.id === id);
+    if (m && m.photo) { try { await IDB.del(m.photo); } catch (e) {} }
+    state.memories = state.memories.filter(x => x.id !== id); LS.set("memories", state.memories);
+  }
+  // Attach a photo to a quest and mark it done — the "capture the moment" loop.
+  function questPhoto(q, after) {
+    pickPhoto(async (file) => {
+      const key = await storePhoto(file);
+      if (!state.quests[q.id]) toggleQuest(q.id);
+      addMemory({ title: q.t, questId: q.id, note: "", photo: key });
+      toast(key ? "📸 Memory saved" : "🏆 Quest done");
+      if (after) after();
+    });
+  }
 
   const esc = (s) => String(s == null ? "" : s).replace(/[&<>"]/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;" }[c]));
 
@@ -169,18 +239,42 @@
   function questCard(q) {
     const on = !!state.quests[q.id];
     const m = QCAT[q.cat] || QCAT.do;
-    return `<div class="quest ${on?"done":""}" data-quest="${q.id}" role="checkbox" tabindex="0" aria-checked="${on}">
-      <div class="q-check" style="${on?'':'border-color:'+m.c}">${on?"✓":m.i}</div>
-      <div class="q-body"><div class="q-t">${esc(q.t)}</div><div class="q-h">${esc(q.h)}</div></div>
+    const hasPhoto = state.memories.some(x => x.questId === q.id && x.photo);
+    return `<div class="quest ${on?"done":""}">
+      <div class="q-check" style="${on?'':'border-color:'+m.c}" data-quest="${q.id}" role="checkbox" tabindex="0" aria-checked="${on}" aria-label="${esc(q.t)}">${on?"✓":m.i}</div>
+      <div class="q-body" data-quest="${q.id}"><div class="q-t">${esc(q.t)}</div><div class="q-h">${esc(q.h)}</div></div>
+      <button class="q-cam ${hasPhoto?'has':''}" data-qcam="${q.id}" aria-label="Add a photo for ${esc(q.t)}">${hasPhoto?'✓📸':'📸'}</button>
       <div class="q-pts" style="color:${m.c}">+${q.pts}</div>
     </div>`;
   }
+  function stampGrid() {
+    const done = T.quests.filter(q => state.quests[q.id]);
+    if (!done.length) return `<div class="passport-empty">Your passport is empty — go earn your first stamp. 🛂</div>`;
+    return `<div class="stamp-grid">` + done.map(q => {
+      const m = QCAT[q.cat] || QCAT.do;
+      const hub = T.hubs.find(h => h.id === q.hub);
+      const col = hub ? hub.color : "var(--aqua)";
+      return `<div class="stamp" style="border-color:${col};color:${col}" title="${esc(q.t)}"><span>${m.i}</span><b>${esc((hub?hub.name:"Anywhere").split(" ")[0])}</b></div>`;
+    }).join("") + `</div>`;
+  }
   function quickAdd() {
     return `<div class="quick-add">
-      <button class="qa-btn" data-gokit="saved">🔗 Save a link</button>
-      <button class="qa-btn" data-gokit="saved">📝 Add a note</button>
-      <button class="qa-btn" id="qaCal">📅 To Calendar</button>
+      <button class="qa-btn" id="qaMem">📸 Memory</button>
+      <button class="qa-btn" data-gokit="saved">🔗 Save link</button>
+      <button class="qa-btn" id="qaCal">📅 Calendar</button>
     </div>`;
+  }
+  // Load memory thumbnails from IndexedDB after render; clean up old URLs.
+  let _thumbUrls = [];
+  function loadThumbs(root) {
+    _thumbUrls.forEach(u => URL.revokeObjectURL(u)); _thumbUrls = [];
+    (root || view).querySelectorAll("img[data-photo]").forEach(async (img) => {
+      try {
+        const blob = await IDB.get(img.dataset.photo);
+        if (blob) { const u = URL.createObjectURL(blob); _thumbUrls.push(u); img.src = u; }
+        else img.closest(".mem-photo") && img.closest(".mem-photo").classList.add("noimg");
+      } catch (e) {}
+    });
   }
 
   function renderToday() {
@@ -256,10 +350,23 @@
       if (!was) toast("🏆 +" + (T.quests.find(q=>q.id===id)||{}).pts + " — nice!");
       renderToday();
     }));
+    view.querySelectorAll("[data-qcam]").forEach(el => el.addEventListener("click", (e) => {
+      e.stopPropagation(); const q = T.quests.find(x => x.id === el.dataset.qcam);
+      if (q) questPhoto(q, renderToday);
+    }));
     view.querySelectorAll("[data-gokit]").forEach(el => el.addEventListener("click", () => {
       state.kitOpen = el.dataset.gokit; LS.set("kitOpen", state.kitOpen); go("kit");
     }));
     const cal = $("#qaCal"); if (cal) cal.addEventListener("click", downloadICS);
+    const mem = $("#qaMem"); if (mem) mem.addEventListener("click", () => {
+      const idx = todayIndex(); const day = (idx>=0 && idx<T.days.length) ? T.days[idx] : null;
+      pickPhoto(async (file) => {
+        const key = await storePhoto(file);
+        addMemory({ title: day ? day.title : "Memory", note: "", photo: key });
+        toast(key ? "📸 Added to your journal" : "Journal note added");
+        state.kitOpen = "journal"; LS.set("kitOpen", state.kitOpen); go("kit");
+      });
+    });
   }
 
   function nextThreeDaysCard(start) {
@@ -541,12 +648,43 @@
   }
 
   function bQuests() {
-    const s = questStats();
-    let h = `<div class="kit-lead">Tick these off as you live them — points for the memories, not the metrics.</div>`;
+    let h = `<div class="kit-lead">Tick these off as you live them, and tap 📸 to pin the moment. Points are for the memories, not the metrics — skip any that aren't you.</div>`;
+    h += `<div class="kit-grp">🛂 Your passport</div>` + stampGrid();
     const groups = [["coron","🚤 Coron"],["tao","🛶 Tao"],["elnido","🏖️ El Nido"],["moalboal","🐢 Moalboal"],[null,"🌏 Anywhere"]];
     groups.forEach(([hub,label]) => {
       const qs = questsFor(hub); if (!qs.length) return;
       h += `<div class="kit-grp">${label}</div>` + qs.map(questCard).join("");
+    });
+    return h;
+  }
+  function bJournal() {
+    let h = `<div class="kit-lead">Your trip, as you live it. Snap a photo, jot a line — it stays on your phone.</div>`;
+    h += `<div class="save-form">
+      <button class="qa-btn" id="jPhoto">📷 Add a photo</button>
+      <div id="jThumb" class="j-thumb" hidden></div>
+      <input id="jNote" placeholder="What happened? (optional)">
+      <button id="jAdd" class="qa-btn">＋ Add to journal</button>
+    </div>`;
+    if (!state.memories.length) {
+      h += `<div class="kit-empty">No entries yet. Every quest photo lands here, or add your own moments above — you'll have the whole trip in one scroll by the end.</div>`;
+      return h;
+    }
+    // group by day (calendar date)
+    const byDay = {};
+    state.memories.forEach(m => { const k = new Date(m.ts).toDateString(); (byDay[k] = byDay[k] || []).push(m); });
+    Object.keys(byDay).forEach(k => {
+      const d = new Date(k);
+      h += `<div class="kit-grp">${d.toLocaleDateString(undefined,{weekday:"short",day:"numeric",month:"short"})}</div>`;
+      byDay[k].forEach(m => {
+        h += `<div class="mem">
+          ${m.photo ? `<div class="mem-photo"><img data-photo="${m.photo}" alt=""></div>` : ""}
+          <div class="mem-body">
+            <div class="mem-t">${esc(m.title || "Moment")}</div>
+            ${m.note ? `<div class="mem-n">${esc(m.note)}</div>` : ""}
+          </div>
+          <button class="si-del" data-delmem="${m.id}" aria-label="Delete memory">✕</button>
+        </div>`;
+      });
     });
     return h;
   }
@@ -627,8 +765,10 @@
     let packDone = 0, packTot = 0;
     T.packing.forEach(g => g.items.forEach(it => { packTot++; if (state.packs[g.g+"|"+it]) packDone++; }));
     const chkDone = T.checklist.filter(c => state.checks[c.id]).length;
+    const memN = state.memories.length;
     let html = pointsStrip();
-    html += kitSection("quests","🎯","Quests",`${s.count}/${s.of} · ${s.pts} pts`, bQuests);
+    html += kitSection("quests","🎯","Quests & passport",`${s.count}/${s.of} · ${s.pts} pts`, bQuests);
+    html += kitSection("journal","📖","Trip journal", memN?`${memN} ${memN===1?"entry":"entries"}`:"photos · notes", bJournal);
     html += kitSection("saved","🗒️","Saved & tickets", savedN?`${savedN} saved`:"links · notes · vault", bSaved);
     html += kitSection("packing","🎒","Packing lists",`${packDone}/${packTot} packed`, bPacking);
     html += kitSection("phrases","🗣️","Phrasebook","offline Tagalog", bPhrases);
@@ -651,6 +791,28 @@
       toggleQuest(id); if (!was) toast("🏆 +" + (T.quests.find(q=>q.id===id)||{}).pts + " — nice!");
       renderKit();
     }));
+    view.querySelectorAll("[data-qcam]").forEach(el => el.addEventListener("click", (e) => {
+      e.stopPropagation(); const q = T.quests.find(x => x.id === el.dataset.qcam);
+      if (q) questPhoto(q, renderKit);
+    }));
+    // journal: stage a photo, then add note
+    let staged = null;
+    const jp = $("#jPhoto");
+    if (jp) jp.addEventListener("click", () => pickPhoto((file) => {
+      staged = file;
+      const t = $("#jThumb");
+      if (t) { t.hidden = false; t.textContent = file ? ("📷 " + (file.name || "photo ready")) : "No photo"; }
+    }));
+    const jAdd = $("#jAdd");
+    if (jAdd) jAdd.addEventListener("click", async () => {
+      const note = ($("#jNote").value || "").trim();
+      if (!staged && !note) { toast("Add a photo or a line first"); return; }
+      const key = await storePhoto(staged);
+      const idx = todayIndex(); const day = (idx>=0 && idx<T.days.length) ? T.days[idx] : null;
+      addMemory({ title: day ? day.title : "Moment", note, photo: key });
+      toast("📖 Added to your journal"); renderKit();
+    });
+    view.querySelectorAll("[data-delmem]").forEach(el => el.addEventListener("click", async () => { await delMemory(el.dataset.delmem); renderKit(); }));
     // packing
     view.querySelectorAll("[data-pack]").forEach(el => el.addEventListener("click", () => {
       const k = el.dataset.pack; state.packs[k] = !state.packs[k]; LS.set("packs", state.packs); renderKit();
@@ -671,6 +833,7 @@
     });
     view.querySelectorAll("[data-del]").forEach(el => el.addEventListener("click", () => { delSaved(el.dataset.del); renderKit(); }));
     a11y();
+    loadThumbs();
   }
 
   /* ======================= navigation ======================= */

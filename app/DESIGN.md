@@ -199,6 +199,29 @@ new state (quests, packing, saved, open-section) all persisted in localStorage
 and working fully offline. The gamification stays honest — the Quests lead reads
 "points for the memories, not the metrics."
 
+## 5e. Competitive research → adopted patterns
+
+Researched award-winning / widely-praised apps sharing our features and adopted
+the highest-value, least-sloppy ideas (full reasoning in the chat log):
+
+| Source app (why praised) | Pattern | Decision |
+|---|---|---|
+| **Polarsteps** — most-loved travel tracker | The trip becomes a **visual timeline you fill with photos + notes as you go** | **Adopted** — Trip journal |
+| **Journo / Travel Diaries** — top journal apps | **Capture a photo + line on the spot**, dated automatically | **Adopted** — inline photo capture (device camera) |
+| **SubQuester / Stamp'd** — gamified passports | Rewards as **collectible passport stamps**, not a bare number | **Adopted** — passport stamp grid |
+| **Atlas Obscura** — "Been There" tracking | A record of what you've done | **Adapted** — the journal is our been-there |
+| **Duolingo** (critique literature) | Streaks/leaderboards drift into **dark patterns** (guilt, shame) | **Guardrail** — no streaks, no leaderboards, copy stays shame-free ("skip any that aren't you") |
+| Polarsteps live GPS + social sharing | Auto-track + broadcast | **Skipped** — needs a server, account, battery; breaks offline/private ethos |
+| Rome2Rio / AI itinerary generators | Multimodal search / auto-plans | **Skipped** — transport is fixed; a hand-crafted plan is the anti-slop point |
+
+**Implementation.** Photos are captured with the device camera (`<input capture>`),
+**downscaled client-side** to ~900px JPEG and stored in **IndexedDB** (blobs kept
+out of localStorage's ~5 MB cap); memory metadata (title, note, date, quest link)
+lives in localStorage. A completed quest can mint a **stamp** and a **journal
+entry** in one tap of 📸. Everything stays on-device and works offline — no
+account, no upload, matching the app's ethos while delivering the single
+most-praised mechanic we were missing (the fill-as-you-go trip diary).
+
 ## 6. Architecture / files
 
 ```
