@@ -222,6 +222,39 @@ entry** in one tap of 📸. Everything stays on-device and works offline — no
 account, no upload, matching the app's ethos while delivering the single
 most-praised mechanic we were missing (the fill-as-you-go trip diary).
 
+## 5f. Visual redesign — "Expedition log / nautical chart"
+
+User feedback: the UI looked cheap. Re-ran the `frontend-design` skill and
+diagnosed it honestly — it was sitting in AI-slop cluster #2 (near-black + one
+accent + stacked outlined cards), with **emoji as UI chrome** the biggest cheap
+tell, plus murky low-contrast surfaces and one monotonous rhythm.
+
+Committed to a single deliberate direction grounded in the subject (a 20-night
+sea passage), and rebuilt the visual system:
+
+- **Palette** redefined at the token level (so it cascades everywhere): deep
+  ocean ink with real value separation, warm **brass/sand** for earned things,
+  one **lagoon-aqua** primary + **sunset-coral** accent. All text re-verified
+  ≥4.5:1 with the contrast script.
+- **Signature texture**: a faint nautical-chart **graticule** across the app and
+  **bathymetric depth rings** behind the hero headline — unmistakably sea/chart.
+- **Icon system**: a consistent inline-SVG **line-icon set** (a hidden `<symbol>`
+  sprite) replaces emoji in the nav, section headers, quests, quick-actions,
+  Kit headers, Money headers, and the alert callout. Scoped as `svg.ic` so it
+  never collides with the few emoji kept as *expressive content* (nudges/tips).
+- **Surfaces**: glass "chart plates" — layered gradient + soft shadow + hairline
+  top-light — instead of hard 1px outlines. Varied rhythm; the brass score plate
+  reads distinct from the cool cards.
+- **Type**: bigger, more confident serif display; a **mono** voice for
+  coordinates/dates/data (the chart register).
+- **Details**: hub-colored dots on the leg pills and quest groups (no emoji), a
+  ghost capture button so photo quests no longer show a confusing twin camera,
+  an active-tab indicator bar.
+
+Kept the whole quality floor intact (keyboard focus, reduced-motion, ≥44px,
+offline). Verified across every tab in headless Chromium: 0 errors, photo
+capture + stamps still work, still boots offline.
+
 ## 6. Architecture / files
 
 ```

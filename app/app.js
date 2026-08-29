@@ -96,6 +96,7 @@
   }
 
   const esc = (s) => String(s == null ? "" : s).replace(/[&<>"]/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;" }[c]));
+  const icon = (n, cls) => `<svg class="ic${cls ? " " + cls : ""}" aria-hidden="true"><use href="#i-${n}"/></svg>`;
 
   // ---- dates / countdown ----
   const DEPART = new Date("2027-02-12T00:00:00");
@@ -139,8 +140,8 @@
   };
 
   /* ======================= gamification ======================= */
-  const QCAT = { photo:{i:"📸",c:"var(--gold)"}, do:{i:"🏄",c:"var(--aqua)"},
-                 culture:{i:"🗣️",c:"var(--violet-t)"}, rest:{i:"😌",c:"var(--teal-t)"} };
+  const QCAT = { photo:{n:"camera",c:"var(--sun)"}, do:{n:"wave",c:"var(--aqua)"},
+                 culture:{n:"chat",c:"var(--violet-t)"}, rest:{n:"moon",c:"var(--teal-t)"} };
   const questsFor = (hub) => T.quests.filter(q => q.hub === hub);
   function questStats() {
     const done = T.quests.filter(q => state.quests[q.id]);
@@ -224,16 +225,23 @@
   }
 
   /* ======================= TODAY ======================= */
+  function legPills() {
+    const legs = [["mactan1","Cebu"],["coron","Coron"],["tao","Tao"],["elnido","El Nido"],["moalboal","Moalboal"]];
+    return legs.map(([id,label]) => {
+      const h = T.hubs.find(x => x.id === id) || {};
+      return `<span class="pill"><i class="leg-dot" style="background:${h.color||'#8caeaa'}"></i>${label} · ${h.nights||1}n</span>`;
+    }).join("");
+  }
   function pointsStrip() {
     const s = questStats();
     const pct = s.total ? Math.round(s.pts / s.total * 100) : 0;
-    return `<div class="pts-strip" data-gokit="quests" role="button" tabindex="0">
-      <div class="pts-badge">🏆 ${s.pts}<span>pts</span></div>
+    return `<div class="pts-strip" data-gokit="quests" role="button" tabindex="0" aria-label="Adventure score, ${s.pts} points">
+      <div class="pts-badge">${icon("award")}<b>${s.pts}</b></div>
       <div class="pts-body">
-        <div class="pts-top"><b>Adventure score</b><span>${s.count}/${s.of} quests</span></div>
+        <div class="pts-top"><b>Adventure score</b><span>${s.count}/${s.of} · ${s.pts} pts</span></div>
         <div class="pts-bar"><i style="width:${pct}%"></i></div>
       </div>
-      <div class="pts-arrow">›</div>
+      <div class="pts-arrow">${icon("chevron")}</div>
     </div>`;
   }
   function questCard(q) {
@@ -241,27 +249,27 @@
     const m = QCAT[q.cat] || QCAT.do;
     const hasPhoto = state.memories.some(x => x.questId === q.id && x.photo);
     return `<div class="quest ${on?"done":""}">
-      <div class="q-check" style="${on?'':'border-color:'+m.c}" data-quest="${q.id}" role="checkbox" tabindex="0" aria-checked="${on}" aria-label="${esc(q.t)}">${on?"✓":m.i}</div>
+      <div class="q-check" style="${on?'':'color:'+m.c}" data-quest="${q.id}" role="checkbox" tabindex="0" aria-checked="${on}" aria-label="${esc(q.t)}">${on?"✓":icon(m.n)}</div>
       <div class="q-body" data-quest="${q.id}"><div class="q-t">${esc(q.t)}</div><div class="q-h">${esc(q.h)}</div></div>
-      <button class="q-cam ${hasPhoto?'has':''}" data-qcam="${q.id}" aria-label="Add a photo for ${esc(q.t)}">${hasPhoto?'✓📸':'📸'}</button>
+      <button class="q-cam ${hasPhoto?'has':''}" data-qcam="${q.id}" aria-label="Add a photo for ${esc(q.t)}">${icon("camera","ic-sm")}</button>
       <div class="q-pts" style="color:${m.c}">+${q.pts}</div>
     </div>`;
   }
   function stampGrid() {
     const done = T.quests.filter(q => state.quests[q.id]);
-    if (!done.length) return `<div class="passport-empty">Your passport is empty — go earn your first stamp. 🛂</div>`;
+    if (!done.length) return `<div class="passport-empty">Your passport is empty — complete a quest to earn your first stamp.</div>`;
     return `<div class="stamp-grid">` + done.map(q => {
       const m = QCAT[q.cat] || QCAT.do;
       const hub = T.hubs.find(h => h.id === q.hub);
       const col = hub ? hub.color : "var(--aqua)";
-      return `<div class="stamp" style="border-color:${col};color:${col}" title="${esc(q.t)}"><span>${m.i}</span><b>${esc((hub?hub.name:"Anywhere").split(" ")[0])}</b></div>`;
+      return `<div class="stamp" style="border-color:${col};color:${col}" title="${esc(q.t)}">${icon(m.n)}<b>${esc((hub?hub.name:"Anywhere").split(" ")[0])}</b></div>`;
     }).join("") + `</div>`;
   }
   function quickAdd() {
     return `<div class="quick-add">
-      <button class="qa-btn" id="qaMem">📸 Memory</button>
-      <button class="qa-btn" data-gokit="saved">🔗 Save link</button>
-      <button class="qa-btn" id="qaCal">📅 Calendar</button>
+      <button class="qa-btn" id="qaMem">${icon("camera","ic-sm")} Memory</button>
+      <button class="qa-btn" data-gokit="saved">${icon("link","ic-sm")} Save link</button>
+      <button class="qa-btn" id="qaCal">${icon("calendar","ic-sm")} Calendar</button>
     </div>`;
   }
   // Load memory thumbnails from IndexedDB after render; clean up old URLs.
@@ -292,16 +300,10 @@
         <h2>${dleft} days to go</h2>
         <div class="where">${esc(T.meta.subtitle)}</div>
         <p>${esc(T.meta.dates)} · ${T.days.length} days on the ground</p>
-        <div class="pill-row">
-          <span class="pill">🛬 Land Cebu</span>
-          <span class="pill">🚤 Coron 5n</span>
-          <span class="pill">🛶 Tao 4n</span>
-          <span class="pill">🏖️ El Nido 6n</span>
-          <span class="pill">🐢 Moalboal 3n</span>
-        </div></div>`;
+        <div class="pill-row">${legPills()}</div></div>`;
       html += pointsStrip();
       if (urgent.length) {
-        html += `<div class="callout"><div class="ic">⚠️</div><div>
+        html += `<div class="callout"><div class="ic">${icon('alert','ic-alert')}</div><div>
           <div class="t">${urgent.length} urgent booking${urgent.length>1?"s":""} still open</div>
           <div class="b">${urgent.map(c=>esc(c.t)).join(" · ")}</div></div></div>`;
       }
@@ -396,7 +398,7 @@
   /* ======================= PLAN ======================= */
   function renderPlan() {
     view.classList.remove("nopad");
-    let html = `<button class="cal-btn" id="planCal">📅 Add whole itinerary to Calendar</button>`;
+    let html = `<button class="cal-btn" id="planCal">${icon('calendar')} Add whole itinerary to Calendar</button>`;
     html += `<div class="section-h">The shape</div><div class="hub-strip">`;
     T.hubs.forEach((h, i) => {
       html += `<div class="hub-chip" data-gohub="${h.id}">
@@ -497,7 +499,7 @@
     const opt = (sel) => cur.map(c => `<option ${c===sel?"selected":""}>${c}</option>`).join("");
     let html = `
     <div class="calc">
-      <h3>💱 Currency converter</h3>
+      <h3>${icon('swap')} Currency converter</h3>
       <div class="fx-row">
         <input id="fxInput" type="number" inputmode="decimal" value="100">
         <select id="fxFrom">${opt(state.fxFrom)}</select>
@@ -511,7 +513,7 @@
     </div>
 
     <div class="calc">
-      <h3>🧮 Tip & split</h3>
+      <h3>${icon('calc')} Tip & split</h3>
       <div class="fx-row">
         <input id="tipBill" type="number" inputmode="decimal" value="1000" placeholder="Bill">
         <select id="tipCur">${opt("PHP")}</select>
@@ -532,7 +534,7 @@
     </div>
 
     <div class="calc">
-      <h3>🏧 Cash plan — draw pesos before the islands</h3>
+      <h3>${icon('cash')} Cash plan — draw pesos before the islands</h3>
       <div class="cash-rules">
         ${T.cash.rules.map(r => `<div class="cash-rule"><span class="n">▹</span><span>${esc(r)}</span></div>`).join("")}
       </div>
@@ -551,7 +553,7 @@
     </div>
 
     <div class="calc" id="budCard">
-      <h3>💰 Trip budget (per person)</h3>
+      <h3>${icon('money')} Trip budget (per person)</h3>
       <div class="fx-row" style="margin-bottom:12px">
         <span style="font-size:13px;color:var(--mut)">Show in</span>
         <select id="budCur">${opt("USD")}</select>
@@ -635,35 +637,36 @@
   }
 
   /* ======================= KIT (accordion) ======================= */
-  function kitSection(key, icon, title, sub, bodyHtml) {
+  function kitSection(key, iconName, title, sub, bodyHtml) {
     const open = state.kitOpen === key;
     return `<div class="kit-sec ${open?"open":""}">
       <button class="kit-head" data-sec="${key}" aria-expanded="${open}">
-        <span class="kh-ic">${icon}</span>
+        <span class="kh-ic">${icon(iconName)}</span>
         <span class="kh-t">${title}<span class="kh-sub">${sub}</span></span>
-        <span class="kh-x">${open?"▾":"▸"}</span>
+        <span class="kh-x">${icon("chevron")}</span>
       </button>
       <div class="kit-body" ${open?"":"hidden"}>${open?bodyHtml():""}</div>
     </div>`;
   }
 
   function bQuests() {
-    let h = `<div class="kit-lead">Tick these off as you live them, and tap 📸 to pin the moment. Points are for the memories, not the metrics — skip any that aren't you.</div>`;
-    h += `<div class="kit-grp">🛂 Your passport</div>` + stampGrid();
-    const groups = [["coron","🚤 Coron"],["tao","🛶 Tao"],["elnido","🏖️ El Nido"],["moalboal","🐢 Moalboal"],[null,"🌏 Anywhere"]];
+    let h = `<div class="kit-lead">Tick these off as you live them, and tap the camera to pin the moment. Points are for the memories, not the metrics — skip any that aren't you.</div>`;
+    h += `<div class="kit-grp">Your passport</div>` + stampGrid();
+    const groups = [["coron","Coron"],["tao","Tao"],["elnido","El Nido"],["moalboal","Moalboal"],[null,"Anywhere"]];
     groups.forEach(([hub,label]) => {
       const qs = questsFor(hub); if (!qs.length) return;
-      h += `<div class="kit-grp">${label}</div>` + qs.map(questCard).join("");
+      const col = hub ? ((T.hubs.find(x=>x.id===hub)||{}).color||"var(--aqua)") : "var(--aqua)";
+      h += `<div class="kit-grp"><i class="grp-dot" style="background:${col}"></i>${label}</div>` + qs.map(questCard).join("");
     });
     return h;
   }
   function bJournal() {
     let h = `<div class="kit-lead">Your trip, as you live it. Snap a photo, jot a line — it stays on your phone.</div>`;
     h += `<div class="save-form">
-      <button class="qa-btn" id="jPhoto">📷 Add a photo</button>
+      <button class="qa-btn" id="jPhoto">${icon('camera','ic-sm')} Add a photo</button>
       <div id="jThumb" class="j-thumb" hidden></div>
       <input id="jNote" placeholder="What happened? (optional)">
-      <button id="jAdd" class="qa-btn">＋ Add to journal</button>
+      <button id="jAdd" class="qa-btn">${icon('plus','ic-sm')} Add to journal</button>
     </div>`;
     if (!state.memories.length) {
       h += `<div class="kit-empty">No entries yet. Every quest photo lands here, or add your own moments above — you'll have the whole trip in one scroll by the end.</div>`;
@@ -682,7 +685,7 @@
             <div class="mem-t">${esc(m.title || "Moment")}</div>
             ${m.note ? `<div class="mem-n">${esc(m.note)}</div>` : ""}
           </div>
-          <button class="si-del" data-delmem="${m.id}" aria-label="Delete memory">✕</button>
+          <button class="si-del" data-delmem="${m.id}" aria-label="Delete memory">${icon('x','ic-sm')}</button>
         </div>`;
       });
     });
@@ -692,19 +695,19 @@
     let h = `<div class="save-form">
       <input id="svText" placeholder="Paste a link, or jot a note / ticket ref…">
       <input id="svUrl" placeholder="Optional link (https://…)" inputmode="url">
-      <button id="svAdd" class="qa-btn">＋ Save</button>
+      <button id="svAdd" class="qa-btn">${icon('plus','ic-sm')} Save</button>
     </div>`;
     if (!state.saved.length) {
       h += `<div class="kit-empty">Nothing saved yet. Drop restaurant links, a ticket reference, or a tip you want to remember — it all lives here, offline. You can also ★ Save any place from the map.</div>`;
     } else {
       h += state.saved.map(s => {
-        const ic = s.kind==="place"?"★":s.url?"🔗":"📝";
+        const ic = icon(s.kind==="place"?"bookmark":s.url?"link":"chat");
         const body = s.url
           ? `<a href="${esc(s.url)}" target="_blank" rel="noopener">${esc(s.text)} ↗</a>`
           : `<span>${esc(s.text)}</span>`;
         return `<div class="saved-item"><span class="si-ic">${ic}</span>
           <div class="si-body">${body}</div>
-          <button class="si-del" data-del="${s.id}" aria-label="Delete">✕</button></div>`;
+          <button class="si-del" data-del="${s.id}" aria-label="Delete">${icon('x','ic-sm')}</button></div>`;
       }).join("");
     }
     return h;
@@ -767,13 +770,13 @@
     const chkDone = T.checklist.filter(c => state.checks[c.id]).length;
     const memN = state.memories.length;
     let html = pointsStrip();
-    html += kitSection("quests","🎯","Quests & passport",`${s.count}/${s.of} · ${s.pts} pts`, bQuests);
-    html += kitSection("journal","📖","Trip journal", memN?`${memN} ${memN===1?"entry":"entries"}`:"photos · notes", bJournal);
-    html += kitSection("saved","🗒️","Saved & tickets", savedN?`${savedN} saved`:"links · notes · vault", bSaved);
-    html += kitSection("packing","🎒","Packing lists",`${packDone}/${packTot} packed`, bPacking);
-    html += kitSection("phrases","🗣️","Phrasebook","offline Tagalog", bPhrases);
-    html += kitSection("checklist","✅","Booking checklist",`${chkDone}/${T.checklist.length} done`, bChecklist);
-    html += kitSection("tips","💡","Tips & know-how",`${T.tips.length} cards`, bTips);
+    html += kitSection("quests","flag","Quests & passport",`${s.count}/${s.of} · ${s.pts} pts`, bQuests);
+    html += kitSection("journal","book","Trip journal", memN?`${memN} ${memN===1?"entry":"entries"}`:"photos · notes", bJournal);
+    html += kitSection("saved","bookmark","Saved & tickets", savedN?`${savedN} saved`:"links · notes · vault", bSaved);
+    html += kitSection("packing","bag","Packing lists",`${packDone}/${packTot} packed`, bPacking);
+    html += kitSection("phrases","chat","Phrasebook","offline Tagalog", bPhrases);
+    html += kitSection("checklist","check","Booking checklist",`${chkDone}/${T.checklist.length} done`, bChecklist);
+    html += kitSection("tips","bulb","Tips & know-how",`${T.tips.length} cards`, bTips);
     html += `<div class="center-mut">Everything here works offline. Add to Home Screen for the full app.</div>`;
     view.innerHTML = html;
     wireKit();
