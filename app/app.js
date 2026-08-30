@@ -260,15 +260,35 @@
   }
   const icsEsc = (s) => String(s).replace(/[\\,;]/g, m => "\\" + m).replace(/\n/g, "\\n");
   function downloadICS() {
+    const ics = buildICS();
+    // A blob download works locally and on a normal host, but is blocked when
+    // the page runs inside a sandboxed frame (the hosted preview). Rather than
+    // leave a button that silently does nothing, fall back to the clipboard.
+    const framed = (() => { try { return window.self !== window.top; } catch (e) { return true; } })();
+    if (!framed) {
+      try {
+        const url = URL.createObjectURL(new Blob([ics], { type: "text/calendar" }));
+        const a = document.createElement("a");
+        a.href = url; a.download = "philippines-2027.ics";
+        document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 4000);
+        toast("Calendar file ready");
+        return;
+      } catch (e) { /* fall through to clipboard */ }
+    }
+    const done = () => toast("Calendar copied — save as philippines-2027.ics");
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(ics).then(done, () => legacyCopy(ics, done));
+    } else legacyCopy(ics, done);
+  }
+  function legacyCopy(text, ok) {
     try {
-      const blob = new Blob([buildICS()], { type:"text/calendar" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url; a.download = "philippines-2027.ics";
-      document.body.appendChild(a); a.click(); a.remove();
-      setTimeout(() => URL.revokeObjectURL(url), 4000);
-      toast("Calendar file ready");
-    } catch (e) { toast("Couldn't create calendar file"); }
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      ta.style.cssText = "position:fixed;top:-9999px;opacity:0";
+      document.body.appendChild(ta); ta.select();
+      document.execCommand("copy"); ta.remove(); ok();
+    } catch (e) { toast("Couldn't copy the calendar here"); }
   }
 
   /* ======================= TODAY ======================= */

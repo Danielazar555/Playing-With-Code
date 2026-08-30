@@ -22,3 +22,23 @@ network, so nothing is loaded from a CDN at runtime.
   sun / island / water motif stays consistent, with no attribution burden.
 - **flag-icons** (MIT) — the flag's 8-ray sun is already the app's mark and is
   more distinctive than a rectangular flag graphic.
+
+## Standalone build
+
+`build-standalone.py` inlines the CSS, JS and data into one file:
+
+- `dist/philippines-trip.html` — open directly from disk (`file://`), no server.
+- `dist/artifact-body.html` — same page without the document wrapper, for hosts
+  that supply their own `<head>`/`<body>`.
+
+Verified from `file://`: boots, map coastlines render, converter computes,
+quests score, state persists in localStorage, **0 console errors**.
+
+Two limits of a no-server build, handled rather than hidden:
+- **No service worker** (needs an http origin) — irrelevant offline, since the
+  single file already contains everything.
+- **Calendar export**: a blob download works from disk and on a real host, but a
+  sandboxed frame blocks it, so the button falls back to copying the `.ics` text
+  to the clipboard. (`.ics` is not in the host download allowlist, so the
+  `downloads` capability is not an option.) Verified in a real iframe: copies a
+  valid VCALENDAR with 22 events.
