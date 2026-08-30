@@ -155,13 +155,13 @@
   }
   // Personalised nudge from the day's character.
   const NUDGE = {
-    highlight:{n:"flag",t:"Big one today",b:"This is a headline day — go early, go for it, get the shot."},
-    dive:{n:"wave",t:"Adventure day",b:"Adrenaline on the menu. Warm up, hydrate, then send it."},
-    beach:{n:"sun",t:"Slow it down",b:"Beach day. Swim, read, chase the light — no rush."},
-    rest:{n:"moon",t:"Recharge",b:"A rest day is part of the plan. Journal, nap, do your own thing."},
-    expedition:{n:"boat",t:"Off the grid",b:"No signal, no schedule. Be all the way here — phone away."},
-    travel:{n:"anchor",t:"Moving day",b:"Transit today. Snacks, water, podcasts. Save your energy."},
-    transit:{n:"plane",t:"On the move",b:"Long haul. Rest when you can; the good part is close."}
+    highlight:{n:"flag",t:"Big one today",b:"One of the big ones. Go early, beat the boats, get the shot."},
+    dive:{n:"wave",t:"Adventure day",b:"Adrenaline day. Water, sunscreen, then send it."},
+    beach:{n:"sun",t:"Slow it down",b:"Sand day. Swim, read, chase the light. Nowhere to be."},
+    rest:{n:"moon",t:"Recharge",b:"Resting is part of the plan. Journal, nap, do nothing on purpose."},
+    expedition:{n:"boat",t:"Off the grid",b:"No signal out here, and that's the point. Phone away, eyes up."},
+    travel:{n:"anchor",t:"Moving day",b:"Moving day. Snacks, water, a good playlist. Save your legs."},
+    transit:{n:"plane",t:"On the move",b:"Long haul. Sleep when you can — the islands are close."}
   };
 
   /* ======================= saved / vault ======================= */
@@ -225,6 +225,55 @@
   }
 
   /* ======================= TODAY ======================= */
+  /* The hero scene: sky, the 8-ray Philippine sun, islands, moving water.
+     Pure inline SVG so it works offline; motion is disabled by
+     prefers-reduced-motion in CSS. */
+  function heroScene() {
+    const rays = [];
+    for (let i = 0; i < 8; i++) {
+      const a = i * 45;
+      rays.push(`<path class="sun-ray" transform="rotate(${a} 320 52)"
+        d="M320 22 L325.5 44 L320 40 L314.5 44 Z"/>`);
+    }
+    return `<div class="scene" aria-hidden="true"><svg viewBox="0 0 400 240" preserveAspectRatio="xMidYMid slice">
+      <defs>
+        <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#ffd54a" stop-opacity=".55"/>
+          <stop offset="100%" stop-color="#ffd54a" stop-opacity="0"/>
+        </radialGradient>
+        <linearGradient id="seaG" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#1ba6c9"/><stop offset="100%" stop-color="#0d4b7a"/>
+        </linearGradient>
+      </defs>
+
+      <circle class="sun-glow" cx="320" cy="52" r="86"/>
+      <g class="sun-grp">${rays.join("")}</g>
+      <circle class="sun-disc" cx="320" cy="52" r="19"/>
+
+      <!-- islands on the horizon -->
+      <g class="isle">
+        <path d="M0 168 q26-32 54-32 t54 32 z"/>
+        <path d="M232 170 q34-40 70-40 t72 40 z"/>
+      </g>
+      <g class="palm">
+        <path d="M72 140 q3 12 1 26"/><path d="M72 140 q-13-7-19-2"/>
+        <path d="M72 140 q13-7 19-2"/><path d="M72 140 q-6-13 1-17"/>
+        <path d="M300 134 q3 14 1 30"/><path d="M300 134 q-14-8-21-2"/>
+        <path d="M300 134 q14-8 21-2"/><path d="M300 134 q-6-14 1-18"/>
+      </g>
+
+      <!-- water: three drifting bands -->
+      <g>
+        <path class="wave w1" fill="url(#seaG)" opacity=".95"
+          d="M0 186 q50-15 100 0 t100 0 t100 0 t100 0 t100 0 V240 H0 Z"/>
+        <path class="wave w2" fill="#0f6f9e" opacity=".5"
+          d="M0 200 q50-13 100 0 t100 0 t100 0 t100 0 t100 0 V240 H0 Z"/>
+        <path class="wave w3" fill="#e8f7ff" opacity=".14"
+          d="M0 214 q50-11 100 0 t100 0 t100 0 t100 0 t100 0 V240 H0 Z"/>
+      </g>
+    </svg></div>`;
+  }
+
   function legPills() {
     const legs = [["mactan1","Cebu"],["coron","Coron"],["tao","Tao"],["elnido","El Nido"],["moalboal","Moalboal"]];
     return legs.map(([id,label]) => {
@@ -257,7 +306,7 @@
   }
   function stampGrid() {
     const done = T.quests.filter(q => state.quests[q.id]);
-    if (!done.length) return `<div class="passport-empty">Your passport is empty — complete a quest to earn your first stamp.</div>`;
+    if (!done.length) return `<div class="passport-empty">No stamps yet — finish a quest and the first one lands here.</div>`;
     return `<div class="stamp-grid">` + done.map(q => {
       const m = QCAT[q.cat] || QCAT.do;
       const hub = T.hubs.find(h => h.id === q.hub);
@@ -295,7 +344,7 @@
       const now = new Date();
       const dleft = Math.ceil((DEPART - now) / 86400000);
       const urgent = T.checklist.filter(c => c.urgent && !state.checks[c.id]);
-      html += `<div class="hero"><div class="eyebrow">Countdown</div>
+      html += `<div class="hero">${heroScene()}<div class="eyebrow">Countdown</div>
         <h2>${dleft} days to go</h2>
         <div class="where">${esc(T.meta.subtitle)}</div>
         <p>${esc(T.meta.dates)} · ${T.days.length} days on the ground</p>
@@ -310,14 +359,14 @@
       html += nextThreeDaysCard(0);
     } else if (idx >= T.days.length) {
       const s = questStats();
-      html += `<div class="hero"><div class="eyebrow">Wrapped</div><h2>Trip complete</h2>
-        <p>You scored ${s.pts} points across ${s.count} adventures — start planning the next one.</p></div>`;
+      html += `<div class="hero">${heroScene()}<div class="eyebrow">Wrapped</div><h2>Trip complete</h2>
+        <p>${s.pts} points, ${s.count} adventures, one very good tan. Time to plan the next one.</p></div>`;
       html += pointsStrip();
     } else {
       const day = T.days[idx];
       const hub = T.hubs.find(h => h.id === day.hub);
       const n = NUDGE[day.type] || NUDGE.rest;
-      html += `<div class="hero"><div class="eyebrow">Today · ${esc(day.d)}</div>
+      html += `<div class="hero">${heroScene()}<div class="eyebrow">Today · ${esc(day.d)}</div>
         <h2>${esc(day.title)}</h2>
         <div class="where">${hub ? icon("pin-small","ic-sm") + " " + esc(hub.name) : "In transit"}</div>
         <p>${esc(day.body)}</p></div>`;
@@ -634,11 +683,11 @@
   }
 
   /* ======================= KIT (accordion) ======================= */
-  function kitSection(key, iconName, title, sub, bodyHtml) {
+  function kitSection(key, iconName, title, sub, bodyHtml, hue) {
     const open = state.kitOpen === key;
     return `<div class="kit-sec ${open?"open":""}">
       <button class="kit-head" data-sec="${key}" aria-expanded="${open}">
-        <span class="kh-ic">${icon(iconName)}</span>
+        <span class="kh-ic" style="background:${hue||"var(--accent)"}">${icon(iconName,"ic-sm")}</span>
         <span class="kh-t">${title}<span class="kh-sub">${sub}</span></span>
         <span class="kh-x">${icon("chevron")}</span>
       </button>
@@ -647,7 +696,7 @@
   }
 
   function bQuests() {
-    let h = `<div class="kit-lead">Tick these off as you live them, and tap the camera to pin the moment. Points are for the memories, not the metrics — skip any that aren't you.</div>`;
+    let h = `<div class="kit-lead">Little dares for the trip. Live one, tap the circle; tap the camera to keep the moment. Points are for the memories, not the metrics — skip any that aren't you.</div>`;
     h += `<div class="kit-grp">Your passport</div>` + stampGrid();
     const groups = [["coron","Coron"],["tao","Tao"],["elnido","El Nido"],["moalboal","Moalboal"],[null,"Anywhere"]];
     groups.forEach(([hub,label]) => {
@@ -658,7 +707,7 @@
     return h;
   }
   function bJournal() {
-    let h = `<div class="kit-lead">Your trip, as you live it. Snap a photo, jot a line — it stays on your phone.</div>`;
+    let h = `<div class="kit-lead">The trip, in your own words. Snap a photo, jot a line — it never leaves your phone.</div>`;
     h += `<div class="save-form">
       <button class="qa-btn" id="jPhoto">${icon('camera','ic-sm')} Add a photo</button>
       <div id="jThumb" class="j-thumb" hidden></div>
@@ -666,7 +715,7 @@
       <button id="jAdd" class="qa-btn">${icon('plus','ic-sm')} Add to journal</button>
     </div>`;
     if (!state.memories.length) {
-      h += `<div class="kit-empty">No entries yet. Every quest photo lands here, or add your own moments above — you'll have the whole trip in one scroll by the end.</div>`;
+      h += `<div class="kit-empty">Nothing here yet. Every quest photo lands here, and anything you add above — by Moalboal you'll have the whole trip in one scroll.</div>`;
       return h;
     }
     // group by day (calendar date)
@@ -695,7 +744,7 @@
       <button id="svAdd" class="qa-btn">${icon('plus','ic-sm')} Save</button>
     </div>`;
     if (!state.saved.length) {
-      h += `<div class="kit-empty">Nothing saved yet. Drop restaurant links, a ticket reference, or a tip you want to remember — it all lives here, offline. You can also ★ Save any place from the map.</div>`;
+      h += `<div class="kit-empty">Empty for now. Drop a restaurant link, a ticket number, a tip you don't want to lose — it all lives here, offline. You can also save any place straight from the map.</div>`;
     } else {
       h += state.saved.map(s => {
         const ic = icon(s.kind==="place"?"bookmark":s.url?"link":"chat");
@@ -725,7 +774,7 @@
     return h;
   }
   function bPhrases() {
-    let h = `<div class="kit-lead">A little Tagalog goes a long way. <a href="https://translate.google.com/?sl=en&tl=tl" target="_blank" rel="noopener">Open Google Translate ↗</a> for anything else.</div>`;
+    let h = `<div class="kit-lead">A little Tagalog opens a lot of doors. <a href="https://translate.google.com/?sl=en&tl=tl" target="_blank" rel="noopener">Open Google Translate ↗</a> for anything else.</div>`;
     T.phrases.forEach(sec => {
       h += `<div class="kit-grp">${esc(sec.g)}</div><div class="card" style="margin-bottom:10px">`;
       sec.items.forEach(([en, tl, pr]) => {
@@ -768,15 +817,15 @@
     const memN = state.memories.length;
     let html = pointsStrip();
     html += `<div class="kit-group">`;
-    html += kitSection("quests","flag","Quests & passport",`${s.count}/${s.of} · ${s.pts} pts`, bQuests);
-    html += kitSection("journal","book","Trip journal", memN?`${memN} ${memN===1?"entry":"entries"}`:"photos · notes", bJournal);
-    html += kitSection("saved","bookmark","Saved & tickets", savedN?`${savedN} saved`:"links · notes · vault", bSaved);
-    html += kitSection("packing","bag","Packing lists",`${packDone}/${packTot} packed`, bPacking);
-    html += kitSection("phrases","chat","Phrasebook","offline Tagalog", bPhrases);
-    html += kitSection("checklist","check","Booking checklist",`${chkDone}/${T.checklist.length} done`, bChecklist);
-    html += kitSection("tips","bulb","Tips & know-how",`${T.tips.length} cards`, bTips);
+    html += kitSection("quests","flag","Quests & passport",`${s.count}/${s.of} · ${s.pts} pts`, bQuests, "var(--sun)");
+    html += kitSection("journal","book","Trip journal", memN?`${memN} ${memN===1?"entry":"entries"}`:"photos · notes", bJournal, "var(--ok)");
+    html += kitSection("saved","bookmark","Saved & tickets", savedN?`${savedN} saved`:"links · notes · vault", bSaved, "var(--accent)");
+    html += kitSection("packing","bag","Packing lists",`${packDone}/${packTot} packed`, bPacking, "var(--bad)");
+    html += kitSection("phrases","chat","Phrasebook","offline Tagalog", bPhrases, "var(--plum)");
+    html += kitSection("checklist","check","Booking checklist",`${chkDone}/${T.checklist.length} done`, bChecklist, "var(--info)");
+    html += kitSection("tips","bulb","Tips & know-how",`${T.tips.length} cards`, bTips, "var(--sun-soft)");
     html += `</div>`;
-    html += `<div class="center-mut">Everything here works offline. Add to Home Screen for the full app.</div>`;
+    html += `<div class="center-mut">Everything here works with no signal. Add to Home Screen and it opens like an app.</div>`;
     view.innerHTML = html;
     wireKit();
   }

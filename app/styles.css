@@ -13,33 +13,41 @@
    =========================================================== */
 
 :root{
-  /* ---- ground & surfaces: elevation is lightness, not shadow ---- */
-  --bg:#07161d;
-  --bg-hi:#0d2029;               /* top-of-screen lift */
-  --s1:#0e2028;                  /* grouped-list surface */
-  --s2:#152c35;                  /* raised / pressed */
-  --hair:rgba(255,255,255,.065); /* row dividers */
-  --line:rgba(255,255,255,.09);  /* container borders */
-  --line-str:rgba(255,255,255,.14);
+  /* ---- ground & surfaces: tropical ocean, flag blue deepened ---- */
+  --bg:#04182f;
+  --bg-hi:#0a2547;               /* top-of-screen lift */
+  --s1:#0a2547;                  /* grouped-list surface */
+  --s2:#123763;                  /* raised / pressed */
+  --hair:rgba(255,255,255,.075); /* row dividers */
+  --line:rgba(255,255,255,.11);  /* container borders */
+  --line-str:rgba(255,255,255,.17);
 
-  /* ---- text ---- */
-  --ink:#f2f7f5;
-  --ink-2:#aac3c0;               /* secondary */
-  --ink-3:#88a6a3;               /* tertiary / labels */
+  /* ---- text (all AA-verified on the grounds above) ---- */
+  --ink:#f4f9ff;
+  --ink-2:#b3cbe6;
+  --ink-3:#8fabc9;
 
-  /* ---- colour: ONE interactive accent, brass = earned ---- */
-  --accent:#35c2cf;
-  --accent-dim:#1d8b97;
-  --accent-wash:rgba(53,194,207,.12);
-  --brass:#e9bd6a;
-  --brass-wash:rgba(233,189,106,.12);
+  /* ---- Philippine flag palette ----
+     blue #0038A8 · red #CE1126 · sun #FCD116 · white
+     True red is too dark for text on these grounds, so it fills only;
+     --alert is the AA-safe text tint. */
+  --flag-blue:#0038a8;
+  --flag-red:#ce1126;
+  --sun:#fcd116;                 /* the flag sun — energy & earned */
+  --sun-soft:#ffd54a;
+  --sun-wash:rgba(252,209,22,.14);
+  --accent:#3fd9e4;              /* lagoon — interactive */
+  --accent-dim:#1c9fae;
+  --accent-wash:rgba(63,217,228,.14);
+  --brass:var(--sun);            /* legacy alias */
+  --brass-wash:var(--sun-wash);
 
-  /* semantic status only — never decoration */
-  --ok:#4ecb90;
-  --warn:#e9b45f;
-  --bad:#ff8a76;
-  --info:#6bb6e8;
-  --plum:#d79ce2;
+  /* semantic status */
+  --ok:#43d68b;
+  --warn:#ffd54a;
+  --bad:#ff7b6b;
+  --info:#6fb2f0;
+  --plum:#e79ae0;
 
   /* ---- spacing: 4/8pt rhythm ---- */
   --sp1:4px; --sp2:8px; --sp3:12px; --sp4:16px;
@@ -92,11 +100,11 @@ svg.ic-sm{width:var(--icon-sm);height:var(--icon-sm)}
    APP FRAME
    ========================================================= */
 #app{display:flex;flex-direction:column;height:100dvh;max-width:600px;margin:0 auto;position:relative;
-  background:linear-gradient(180deg,var(--bg-hi) 0%,var(--bg) 220px)}
+  background:linear-gradient(180deg,#0d3a63 0%,#0a2547 34%,var(--bg) 62%)}
 /* chart graticule: whisper-quiet, top only */
 #app::before{content:"";position:absolute;left:0;right:0;top:0;height:340px;z-index:0;pointer-events:none;
-  background-image:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),
-                   linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);
+  background-image:linear-gradient(rgba(255,255,255,.045) 1px,transparent 1px),
+                   linear-gradient(90deg,rgba(255,255,255,.045) 1px,transparent 1px);
   background-size:40px 40px;
   -webkit-mask-image:linear-gradient(#000,transparent);mask-image:linear-gradient(#000,transparent)}
 .topbar,#view,.tabbar{position:relative;z-index:1}
@@ -172,20 +180,43 @@ svg.ic-sm{width:var(--icon-sm);height:var(--icon-sm)}
    TODAY
    ========================================================= */
 .hero{border-radius:var(--rad-lg);padding:var(--sp5);margin:var(--sp2) 0 var(--sp4);
-  position:relative;overflow:hidden;border:1px solid var(--line);
-  background:linear-gradient(158deg,#16414c 0%,#103440 52%,#0d2832 100%)}
-.hero::before{content:"";position:absolute;right:-84px;top:-96px;width:250px;height:250px;border-radius:50%;
-  background:radial-gradient(circle,transparent 46%,rgba(140,226,236,.10) 47%,transparent 49%),
-             radial-gradient(circle,transparent 63%,rgba(140,226,236,.08) 64%,transparent 66%),
-             radial-gradient(circle,transparent 80%,rgba(140,226,236,.06) 81%,transparent 83%)}
-.hero .eyebrow{font-size:11px;color:#8fdcea;text-transform:uppercase;letter-spacing:.12em;
-  font-weight:600;font-family:var(--mono);position:relative}
-.hero h2{margin:var(--sp2) 0 var(--sp1);font-size:30px;line-height:1.06;font-family:var(--display);
-  font-weight:600;letter-spacing:-.015em;position:relative;text-wrap:balance}
-.hero .where{color:#bcdde2;font-size:13.5px;margin-bottom:var(--sp3);position:relative;
-  display:flex;align-items:center;gap:5px;font-weight:500}
-.hero .where svg{color:#8fdcea;width:16px;height:16px}
-.hero p{color:#cfe4e5;margin:0;position:relative;font-size:14.5px;line-height:1.5}
+  position:relative;overflow:hidden;border:1px solid rgba(255,255,255,.14);
+  background:linear-gradient(178deg,#1b6fa8 0%,#12558c 38%,#0c3c68 100%);
+  min-height:230px;display:flex;flex-direction:column;justify-content:flex-end}
+.hero > *{position:relative;z-index:2}
+/* scrim: keeps copy legible over the water without dulling the scene */
+.hero::after{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;border-radius:inherit;
+  background:linear-gradient(180deg,rgba(4,24,47,0) 22%,rgba(4,24,47,.42) 52%,rgba(4,24,47,.78) 100%)}
+.hero .eyebrow{font-size:11px;color:#ffe07a;text-transform:uppercase;letter-spacing:.14em;
+  font-weight:700;font-family:var(--mono)}
+.hero h2{margin:var(--sp2) 0 var(--sp1);font-size:31px;line-height:1.05;font-family:var(--display);
+  font-weight:600;letter-spacing:-.015em;text-wrap:balance;color:#fff;
+  text-shadow:0 2px 18px rgba(4,24,47,.5)}
+.hero .where{color:#dcefff;font-size:13.5px;margin-bottom:var(--sp3);
+  display:flex;align-items:center;gap:5px;font-weight:600}
+.hero .where svg{color:var(--sun);width:16px;height:16px}
+.hero p{color:#e6f4ff;margin:0;font-size:14.5px;line-height:1.5;
+  text-shadow:0 1px 10px rgba(4,24,47,.45)}
+
+/* ---- the scene: sky, Philippine sun, islands, moving water ---- */
+.scene{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden;
+  border-radius:inherit}
+.scene svg{position:absolute;inset:0;width:100%;height:100%}
+.scene .sun-grp{transform-origin:320px 52px;animation:spin 90s linear infinite}
+.scene .sun-disc{fill:var(--sun)}
+.scene .sun-ray{fill:var(--sun);opacity:.85}
+.scene .sun-glow{fill:url(#glow)}
+.scene .isle{fill:#052744;opacity:.9}
+.scene .palm{stroke:#052744;stroke-width:2;fill:none;stroke-linecap:round}
+.wave{animation:drift 14s linear infinite}
+.wave.w2{animation-duration:20s;animation-direction:reverse}
+.wave.w3{animation-duration:27s}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes drift{from{transform:translateX(0)}to{transform:translateX(-200px)}}
+@media (prefers-reduced-motion:reduce){
+  .scene .sun-grp,.wave{animation:none}
+}
+
 .pill-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:var(--sp4);position:relative}
 .pill{background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.11);color:#e4f1f2;
   border-radius:var(--rad-sm);padding:6px 10px;font-size:12px;font-weight:600;
@@ -208,7 +239,8 @@ svg.ic-sm{width:var(--icon-sm);height:var(--icon-sm)}
 .pts-top b{font-weight:600;font-size:15px;letter-spacing:-.01em}
 .pts-top span{color:var(--ink-3);font-family:var(--mono);font-size:11.5px;font-variant-numeric:tabular-nums}
 .pts-bar{height:4px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden}
-.pts-bar i{display:block;height:100%;background:var(--brass);border-radius:2px;
+.pts-bar i{display:block;height:100%;border-radius:2px;
+  background:linear-gradient(90deg,#ff9d3d,var(--sun));box-shadow:0 0 10px rgba(252,209,22,.55);
   transition:width var(--t) var(--ease)}
 .pts-arrow{color:var(--ink-3);display:flex}
 .pts-arrow .ic{width:18px;height:18px}
@@ -266,7 +298,7 @@ svg.ic-sm{width:var(--icon-sm);height:var(--icon-sm)}
 .mini-pin:active{background:var(--s2)}
 .mini-pin b{color:var(--accent);font-weight:600}
 
-.cal-btn{width:100%;min-height:48px;background:var(--accent);color:#04222a;border-radius:var(--rad);
+.cal-btn{width:100%;min-height:48px;background:linear-gradient(100deg,var(--accent),#57e3c8);color:#04222a;border-radius:var(--rad);
   font-weight:600;font-size:15px;letter-spacing:-.01em;margin:var(--sp3) 0 var(--sp2);
   display:flex;align-items:center;justify-content:center;gap:var(--sp2);
   transition:filter var(--t-fast) var(--ease)}
@@ -279,7 +311,11 @@ svg.ic-sm{width:var(--icon-sm);height:var(--icon-sm)}
 .map-host{position:relative;width:100%;height:100%;touch-action:none;overflow:hidden;
   background:radial-gradient(130% 115% at 50% -5%,#12303a,#091a22 58%,#07161d)}
 .map-host.grab{cursor:grabbing}
-.map-svg{width:100%;height:100%;display:block;position:relative;z-index:1}
+.map-svg{width:100%;height:100%;display:block;position:relative;z-index:1;
+  /* letter-spacing inherits as an ABSOLUTE length; body's -.01em resolves to
+     -0.16px, which exceeds the glyph advance at this SVG's ~0.18px font size
+     and renders label text backwards. Reset it for all SVG text. */
+  letter-spacing:normal}
 .map-svg .sea{fill:#0a1e26}
 .map-svg .land path{fill:#173029;stroke:#2b5a4a;stroke-width:0;paint-order:stroke;stroke-linejoin:round}
 .map-svg .route .halo{stroke:#07161d;stroke-linecap:round;stroke-linejoin:round;opacity:.65}
@@ -410,8 +446,10 @@ svg.ic-sm{width:var(--icon-sm);height:var(--icon-sm)}
 .kit-head{width:100%;display:flex;align-items:center;gap:var(--sp3);padding:var(--sp3) var(--sp4);
   min-height:60px;text-align:left;transition:background var(--t-fast) var(--ease)}
 .kit-head:active{background:var(--s2)}
-.kh-ic{width:var(--icon-md);height:var(--icon-md);flex:0 0 auto;color:var(--accent);
-  display:flex;align-items:center;justify-content:center}
+.kh-ic{width:30px;height:30px;flex:0 0 auto;border-radius:8px;color:#04182f;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 2px 8px -3px rgba(0,0,0,.5)}
+.kh-ic svg{stroke-width:2}
 .kh-t{flex:1;font-size:16px;font-weight:600;letter-spacing:-.015em;display:flex;flex-direction:column;min-width:0}
 .kh-sub{font-family:var(--mono);font-weight:400;font-size:10.5px;color:var(--ink-3);margin-top:2px;
   text-transform:uppercase;letter-spacing:.03em}

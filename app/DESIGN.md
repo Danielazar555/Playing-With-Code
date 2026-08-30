@@ -343,6 +343,47 @@ All remapped, and a check now asserts every token referenced in JS resolves.
 Verified: 0 console errors, no horizontal overflow, keyboard toggles quests and
 checklist rows, no touch target under 32px, still boots offline.
 
+## 5j. Sunshine pass — Philippine flag colours & a living hero
+
+Brief: make it alive, colourful and fun to watch, using the Philippine flag,
+sunshine, water and island elements — *without* losing the app-grade structure
+from §5i. So the grouped lists, 4/8pt rhythm, icon tokens and press rules all
+stayed exactly as they were; the life comes from colour, one animated scene and
+warmer words.
+
+**Palette — the flag, verified for contrast.** Royal blue #0038A8 deepened into
+the ground (`--bg #04182f`, surfaces #0a2547 / #123763), **flag sun #FCD116** as
+the energy/earned colour, a tropical **lagoon #3fd9e4** as the single
+interactive accent. Flag red #CE1126 measures only **3.17:1** on these grounds,
+so it fills only — `--bad #ff7b6b` is the AA-safe text tint (7.05:1). All text
+tokens re-verified: ink 16.9:1, ink-2 10.7:1, ink-3 7.5:1.
+
+**A living hero.** An inline-SVG scene behind every hero: the **8-ray Philippine
+sun** (slowly rotating), island silhouettes with palms on the horizon, and three
+**drifting water bands** at different speeds. A scrim gradient sits between scene
+and copy so text stays fully legible over the water. All motion is disabled
+under `prefers-reduced-motion`.
+
+**Colour where it helps navigation.** Kit rows got solid tropical **icon tiles**
+(the iOS-Settings pattern) — sun, palm, lagoon, coral, plum, sky — so sections
+are findable by colour, not just text. Leg colours, map pins and the map's route
+line moved onto the same tropical set; the score bar is a sunrise gradient with a
+warm glow.
+
+**Words.** ~15 strings rewritten warmer and more specific — *"Sand day. Swim,
+read, chase the light. Nowhere to be."*, *"No signal out here, and that's the
+point. Phone away, eyes up."*
+
+**Two real bugs found and fixed on the map:**
+1. **Labels rendered backwards.** Measured per-glyph positions and found x
+   *decreasing* across the string. Cause: `body{letter-spacing:-.01em}` (added in
+   §5i) inherits as an **absolute −0.16px**, which exceeds the entire glyph
+   advance at the map's ~0.18px SVG font size. Fixed with `letter-spacing:normal`
+   on `.map-svg`, with a comment so it isn't reintroduced.
+2. **Stacked labels.** The two Mactan hubs share coordinates, so their labels
+   overlaid each other. They now merge into one — "1·6 Mactan". The label halo
+   also dropped from 29% to 14% of font size.
+
 ## 6. Architecture / files
 
 ```

@@ -24,15 +24,15 @@
   }
 
   const CAT = {
-    beach:     { c:"#e6b45c", g:"◗" },
-    lagoon:    { c:"#2bb8c6", g:"❍" },
-    viewpoint: { c:"#c884d6", g:"▲" },
-    food:      { c:"#ff6f5b", g:"●" },
-    dive:      { c:"#4aa6d8", g:"✦" },
-    transport: { c:"#8caeaa", g:"✈" },
-    camp:      { c:"#e0894a", g:"⌂" },
-    town:      { c:"#6f8c93", g:"◉" },
-    springs:   { c:"#ff8f7d", g:"♨" }
+    beach:     { c:"#fcd116", g:"◗" },   // flag sun
+    lagoon:    { c:"#3fd9e4", g:"❍" },   // lagoon
+    viewpoint: { c:"#e79ae0", g:"▲" },
+    food:      { c:"#ff7b6b", g:"●" },
+    dive:      { c:"#6fb2f0", g:"✦" },
+    transport: { c:"#a9c4dd", g:"✈" },
+    camp:      { c:"#ffb347", g:"⌂" },
+    town:      { c:"#8fabc9", g:"◉" },
+    springs:   { c:"#ff9d6b", g:"♨" }
   };
 
   function el(tag, attrs, parent) {
@@ -237,12 +237,25 @@
 
   TripMap.prototype._drawHubDots = function (hubs) {
     this.gLabels.innerHTML = "";
+    // Hubs at the same place (e.g. the two Mactan nights) would stack their
+    // labels illegibly — give them one shared label instead: "1·6 Mactan".
+    const seen = new Map();
     hubs.forEach((hb, i) => {
       const [x, y] = project(hb.lng, hb.lat, this.lat0);
       const c = el("circle", { class:"hub", cx:x, cy:y, r:0.02, fill: hb.color, "data-hub":hb.id }, this.gPins);
       c.addEventListener("click", (e) => { e.stopPropagation(); this.focusHub(hb.id); });
+
+      const key = x.toFixed(3) + "," + y.toFixed(3);
+      const prev = seen.get(key);
+      if (prev) {
+        prev.nums.push(i + 1);
+        prev.el.textContent = prev.nums.join("·") + "  " + prev.name;
+        return;
+      }
+      const name = hb.name.replace(/\s*\((arrival|departure)\)/i, "");
       const t = el("text", { class:"hub-label", "data-bx":x, "data-by":y, "data-hub":hb.id }, this.gLabels);
-      t.textContent = (i+1) + "  " + hb.name;
+      t.textContent = (i + 1) + "  " + name;
+      seen.set(key, { el: t, nums: [i + 1], name: name });
     });
     this._layoutLabels();
   };
@@ -258,7 +271,7 @@
       t.setAttribute("x", bx + off);
       t.setAttribute("y", by + off * 0.3);
       t.setAttribute("font-size", 11 * scale);
-      t.setAttribute("stroke-width", 3.2 * scale);
+      t.setAttribute("stroke-width", 1.5 * scale);   // ~14% of font size: readable halo, no glyph merge
     });
   };
 

@@ -17,17 +17,17 @@ window.TRIP = {
   /* ---- Hubs: the places you sleep, in order ---- */
   hubs: [
     { id: "mactan1", name: "Mactan (arrival)", region: "cebu", lng: 123.979, lat: 10.307,
-      nights: 1, from: "2027-02-13", color: "#8aa0b6" },
+      nights: 1, from: "2027-02-13", color: "#6fb2f0" },
     { id: "coron", name: "Coron", region: "coron", lng: 120.204, lat: 12.005,
-      nights: 5, from: "2027-02-14", color: "#2ea9c9" },
+      nights: 5, from: "2027-02-14", color: "#3fd9e4" },
     { id: "tao", name: "Tao expedition", region: "linapacan", lng: 119.85, lat: 11.55,
-      nights: 4, from: "2027-02-19", color: "#e8823a" },
+      nights: 4, from: "2027-02-19", color: "#fcd116" },
     { id: "elnido", name: "El Nido", region: "elnido", lng: 119.393, lat: 11.196,
-      nights: 6, from: "2027-02-23", color: "#37a86b" },
+      nights: 6, from: "2027-02-23", color: "#43d68b" },
     { id: "moalboal", name: "Moalboal", region: "cebu", lng: 123.383, lat: 9.947,
-      nights: 3, from: "2027-03-01", color: "#c065b8" },
+      nights: 3, from: "2027-03-01", color: "#ff7b6b" },
     { id: "mactan2", name: "Mactan (departure)", region: "cebu", lng: 123.979, lat: 10.307,
-      nights: 1, from: "2027-03-04", color: "#8aa0b6" }
+      nights: 1, from: "2027-03-04", color: "#6fb2f0" }
   ],
 
   /* ---- Day-by-day schedule ---- */
