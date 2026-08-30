@@ -124,6 +124,7 @@
   $("#tbSub").textContent = T.meta.dates;
   function paintTop() {
     $("#countdown").textContent = fmtCountdown();
+    paintRail();
     const off = !navigator.onLine;
     $("#netDot").classList.toggle("off", off);
     $("#netDot").title = off ? "offline — cached & ready" : "online";
@@ -344,6 +345,74 @@
     return `<div class="empty-art" aria-hidden="true"><svg viewBox="0 0 120 70">${body}</svg></div>`;
   }
 
+  /* ---- Trip progress rail ------------------------------------------
+     Borrowed from Polarsteps / Atlas Obscura: at a glance, "where am I in
+     this trip". One thin segmented bar under the top bar — each segment is
+     a leg, width proportional to its days, coloured by that leg. Days
+     behind you are lit; ahead are dimmed; today carries a marker. */
+  function paintRail() {
+    const rail = $("#rail"); if (!rail) return;
+    const idx = todayIndex(), total = T.days.length;
+    const segs = [];
+    T.days.forEach((d, i) => {
+      const last = segs[segs.length - 1];
+      if (last && last.hub === d.hub) last.n++;
+      else segs.push({ hub: d.hub, n: 1, start: i });
+    });
+    const pct = (n) => (n / total * 100).toFixed(3) + "%";
+    rail.innerHTML = segs.map(sg => {
+      const hub = T.hubs.find(h => h.id === sg.hub);
+      const col = hub ? hub.color : "#5c7fa3";
+      const done = idx >= sg.start + sg.n;
+      const here = idx >= sg.start && idx < sg.start + sg.n;
+      // Before departure the rail previews the journey's shape rather than
+      // reading as a dead/empty bar.
+      const op = idx < 0 ? .62 : (done || here ? 1 : .28);
+      return `<i style="width:${pct(sg.n)};background:${col};opacity:${op}"></i>`;
+    }).join("") +
+    (idx >= 0 && idx < total
+      ? `<b class="rail-now" style="left:${((idx + .5) / total * 100).toFixed(2)}%"></b>` : "");
+  }
+
+  /* ---- Journey numbers ---------------------------------------------
+     Polarsteps' most-loved screen is the trip's numbers. These are real:
+     distance is the haversine sum along the actual hub sequence. */
+  function journeyStats() {
+    let km = 0;
+    for (let i = 1; i < T.hubs.length; i++) {
+      km += (window.GEO_DIST ? window.GEO_DIST(T.hubs[i - 1], T.hubs[i]) : 0);
+    }
+    const bases = new Set(T.hubs.map(h => h.name.replace(/\s*\(.*\)/, ""))).size;
+    const nights = T.hubs.reduce((a, h) => a + h.nights, 0);
+    return [
+      { v: Math.round(km).toLocaleString(), l: "km travelled" },
+      { v: bases, l: "island bases" },
+      { v: nights, l: "nights" },
+      { v: Object.keys(POI).length, l: "places pinned" }
+    ];
+  }
+  function statsRow() {
+    return `<div class="stats-row">` + journeyStats().map(s =>
+      `<div class="stat"><b>${s.v}</b><span>${esc(s.l)}</span></div>`).join("") + `</div>`;
+  }
+
+  // Distance between the hubs a travel day moves between (Wanderlog/Rome2Rio
+  // show the hop, not just the destination).
+  function hopKm(i) {
+    const d = T.days[i]; if (!d || !d.hub || !window.GEO_DIST) return null;
+    for (let j = i - 1; j >= 0; j--) {
+      const p = T.days[j];
+      if (p.hub && p.hub !== d.hub) {
+        const a = T.hubs.find(h => h.id === p.hub), b = T.hubs.find(h => h.id === d.hub);
+        if (!a || !b) return null;
+        const km = window.GEO_DIST(a, b);
+        return km > 12 ? Math.round(km) : null;
+      }
+      if (p.hub === d.hub) return null;
+    }
+    return null;
+  }
+
   function legPills() {
     const legs = [["mactan1","Cebu"],["coron","Coron"],["tao","Tao"],["elnido","El Nido"],["moalboal","Moalboal"]];
     return legs.map(([id,label]) => {
@@ -523,6 +592,7 @@
         <div class="hc-bar" style="background:${h.color}"></div></div>`;
     });
     html += `</div>`;
+    html += statsRow();
 
     const idx = todayIndex();
     html += `<div class="section-h">Day by day</div>`;
@@ -543,6 +613,7 @@
               <span class="type-tag t-${d.type}">${d.type}</span>
             </div>
             <div class="day-title">${esc(d.title)}</div>
+            ${(()=>{const k=hopKm(i);return k?`<div class="hop">${icon("plane","ic-sm")} ≈ ${k.toLocaleString()} km</div>`:"";})()}
             <div class="day-body">${esc(d.body)}</div>
             ${(d.pins&&d.pins.length)?`<div class="day-pins">${d.pins.map(id=>{
               const p=POI[id];return p?`<span class="mini-pin" data-poi="${id}"><b>◦</b> ${esc(p.name)}</span>`:"";
@@ -964,6 +1035,7 @@
     state.tab = tab;
     tabbar.querySelectorAll("button").forEach(b => b.classList.toggle("active", b.dataset.tab === tab));
     view.scrollTop = 0;
+    view.classList.remove("enter"); void view.offsetWidth; view.classList.add("enter");
     ({ today: renderToday, plan: renderPlan, map: renderMap, money: renderMoney, kit: renderKit }[tab] || renderToday)();
     paintTop();
   }

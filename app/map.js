@@ -439,4 +439,5 @@
 
   window.TripMap = TripMap;
   window.MAP_CATS = CAT;
+  window.GEO_DIST = dist;   // haversine (km) — reused for journey stats
 })();

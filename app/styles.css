@@ -594,3 +594,38 @@ svg.ic-sm{width:var(--icon-sm);height:var(--icon-sm)}
 .empty-art{max-width:150px;margin:var(--sp3) auto var(--sp2);opacity:.95}
 .empty-art svg{width:100%;height:auto;display:block}
 .kit-empty,.passport-empty{text-align:center}
+
+/* =========================================================
+   Trip progress rail — where you are across the whole trip
+   (Polarsteps / Atlas Obscura "been there" at a glance)
+   ========================================================= */
+.rail{position:relative;z-index:1;display:flex;gap:1.5px;height:3px;
+  margin:0 var(--gutter) var(--sp2);border-radius:2px}
+.rail i{display:block;height:100%;border-radius:2px;transition:opacity var(--t) var(--ease)}
+.rail .rail-now{position:absolute;top:50%;width:7px;height:7px;margin-left:-3.5px;border-radius:50%;
+  background:#fff;transform:translateY(-50%);box-shadow:0 0 0 2px var(--bg),0 0 10px rgba(255,255,255,.7)}
+
+/* ---- journey numbers (real distances, haversine along the route) ---- */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);
+  border:1px solid var(--line);border-radius:var(--rad);overflow:hidden;margin:var(--sp3) 0 var(--sp2)}
+.stats-row .stat{background:var(--s1);padding:var(--sp3) var(--sp1);text-align:center}
+.stats-row .stat b{display:block;font-size:19px;font-weight:600;letter-spacing:-.02em;
+  font-variant-numeric:tabular-nums;color:var(--sun)}
+.stats-row .stat span{display:block;font-size:9.5px;color:var(--ink-3);margin-top:2px;
+  text-transform:uppercase;letter-spacing:.05em;line-height:1.25}
+
+/* hop distance on travel days */
+.hop{display:inline-flex;align-items:center;gap:5px;margin:2px 0 4px;font-size:11.5px;
+  color:var(--ink-3);font-family:var(--mono);font-variant-numeric:tabular-nums}
+.hop .ic{width:13px;height:13px;color:var(--accent)}
+
+/* ---- entry motion: a short stagger on tab change only ---- */
+@keyframes rise{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
+#view.enter > *{animation:rise .30s var(--ease) both}
+#view.enter > *:nth-child(1){animation-delay:0ms}
+#view.enter > *:nth-child(2){animation-delay:35ms}
+#view.enter > *:nth-child(3){animation-delay:70ms}
+#view.enter > *:nth-child(4){animation-delay:105ms}
+#view.enter > *:nth-child(5){animation-delay:135ms}
+#view.enter > *:nth-child(n+6){animation-delay:160ms}
+@media (prefers-reduced-motion:reduce){ #view.enter > *{animation:none} }

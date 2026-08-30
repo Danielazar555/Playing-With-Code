@@ -415,6 +415,22 @@ a stronger mark than a rectangular flag).
 The service-worker cache was bumped to `ph-trip-v2` so existing installs pick up
 the new sprite and palette.
 
+## 5l. Borrowed elegance — what the comparison apps do well
+
+Went back through the apps benchmarked in §1 and §5e and took the signature
+elements worth having, keeping each one small:
+
+| Borrowed from | Their element | Ours |
+|---|---|---|
+| **Polarsteps**, Atlas Obscura | "Where am I in this trip" at a glance | **Trip progress rail** under the top bar — one 3px bar, a segment per leg sized by its days and coloured by that leg, lit behind you and dimmed ahead, with a marker on today. Before departure it previews the journey's shape instead of reading as an empty bar. |
+| **Polarsteps** | The trip's *numbers* — its most-loved screen | **Journey stats** on Plan: 1,114 km, 5 island bases, 20 nights, 37 places. The distance is real — a haversine sum along the actual hub sequence (`GEO_DIST`, reused from the map), not a hardcoded figure. |
+| **Wanderlog**, Rome2Rio | The hop, not just the destination | **Leg distance** on travel days — "✈ ≈ 453 km" — computed between the hubs the day moves between. Verified against geography: Cebu→Coron 453, Coron→Tao 64, Tao→El Nido 63, El Nido→Moalboal 458, Moalboal→Mactan 77 (sums to the 1,114 total). |
+| Modern app convention | Content that arrives rather than snapping in | **A 35 ms stagger** on tab change only — deliberately *not* on every state toggle, so completing a quest doesn't re-animate the list. Disabled under `prefers-reduced-motion`. |
+
+Deliberately still not taken: Polarsteps' background GPS tracking and social feed
+(needs a server, an account and battery — against the offline/private ethos), and
+Duolingo-style streaks (the dark-pattern guardrail from §5e stands).
+
 ## 6. Architecture / files
 
 ```
