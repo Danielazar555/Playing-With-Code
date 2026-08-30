@@ -652,7 +652,12 @@
     view.classList.add("nopad");
     view.innerHTML = `<div id="mapWrap" style="position:relative;width:100%;height:100%">
       <div id="mapCanvas" style="position:absolute;inset:0"></div>
+      <div id="realCanvas" style="position:absolute;inset:0;display:none"></div>
       <div class="map-topbar"><div class="map-modes" id="mapModes"></div></div>
+      <div class="basemap-sw" id="baseSw">
+        <button data-base="chart" class="on">Chart</button>
+        <button data-base="streets">Streets</button>
+      </div>
       <div class="map-filters"><div class="filter-row" id="mapFilters"></div></div>
     </div>`;
     const canvas = $("#mapCanvas");
@@ -682,6 +687,8 @@
       MAP.setFilter(b.dataset.cat, !off);
     });
 
+    wireBasemap();
+
     if (pendingDay != null) { const d = T.days[pendingDay]; pendingDay = null;
       // switch mode chip to the hub
       const day = d;
@@ -697,6 +704,71 @@
       if (p && p.hub) modes.querySelectorAll(".mode-chip").forEach(x => x.classList.toggle("on", x.dataset.mode === p.hub));
       requestAnimationFrame(() => { if (p&&p.hub) MAP.focusHub(p.hub); MAP.openPoi(id); });
     }
+  }
+
+  /* ---- optional street-level basemap (MapLibre + a local .pmtiles) ----
+     The chart map above always works with zero download. "Streets" adds real
+     OpenStreetMap detail from one local archive — served next to the app, or
+     picked once and kept in IndexedDB. Everything stays offline. */
+  let REAL = null, realReady = false;
+  function wireBasemap() {
+    const sw = $("#baseSw"); if (!sw) return;
+    if (!window.RealMap || !RealMap.available()) { sw.style.display = "none"; return; }
+    sw.addEventListener("click", async (e) => {
+      const b = e.target.closest("button[data-base]"); if (!b) return;
+      const mode = b.dataset.base;
+      sw.querySelectorAll("button").forEach(x => x.classList.toggle("on", x === b));
+      const chart = $("#mapCanvas"), real = $("#realCanvas");
+      if (mode === "chart") {
+        real.style.display = "none"; chart.style.display = "";
+        return;
+      }
+      chart.style.display = "none"; real.style.display = "";
+      if (realReady) return;
+      real.innerHTML = `<div class="rm-loading">Opening offline basemap…</div>`;
+      try {
+        REAL = new RealMap(real, T, { center: [120.6, 11.3], zoom: 6 });
+        const info = await REAL.mount();
+        realReady = true;
+        if (REAL.layerWarning) {
+          toast("Basemap opened, but its layers differ from the expected build");
+        }
+      } catch (err) {
+        realReady = false;
+        real.innerHTML = basemapSetupHTML();
+        const inp = real.querySelector("#pmFile");
+        inp && inp.addEventListener("change", async () => {
+          const f = inp.files && inp.files[0]; if (!f) return;
+          real.innerHTML = `<div class="rm-loading">Opening ${esc(f.name)}…</div>`;
+          try {
+            REAL = new RealMap(real, T, { center: [120.6, 11.3], zoom: 6 });
+            await REAL.mount(f);
+            realReady = true;
+            toast("Offline basemap loaded");
+          } catch (e2) {
+            real.innerHTML = basemapSetupHTML("That file could not be read as a .pmtiles archive.");
+            wireBasemapRetry(real);
+          }
+        });
+      }
+    });
+  }
+  function wireBasemapRetry(real) {
+    const inp = real.querySelector("#pmFile");
+    if (inp) inp.addEventListener("change", () => { realReady = false; $("#baseSw").querySelector('[data-base="streets"]').click(); });
+  }
+  function basemapSetupHTML(err) {
+    return `<div class="rm-setup">
+      ${icon("map")}
+      <h4>Add a street map for offline use</h4>
+      ${err ? `<p class="rm-err">${esc(err)}</p>` : ""}
+      <p>The chart map works with no download. For street names and towns, add one
+         <b>.pmtiles</b> archive of the Philippines — around 150&nbsp;MB, kept on your device.</p>
+      <p class="rm-how">Build it once with the script in <code>tiles/README.md</code>,
+         then either drop it at <code>tiles/philippines.pmtiles</code> or pick it here:</p>
+      <label class="rm-pick">Choose .pmtiles file<input id="pmFile" type="file" accept=".pmtiles" hidden></label>
+      <p class="rm-note">It is stored on this device only and reopens automatically next time.</p>
+    </div>`;
   }
 
   /* ======================= MONEY ======================= */

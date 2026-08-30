@@ -1,12 +1,16 @@
 /* Offline-first service worker. Cache-first for the app shell so the
    whole planner works on the Tao expedition with zero signal. */
-const CACHE = "ph-trip-v2";   // bumped: Lucide sprite + palette change must reach existing installs
+const CACHE = "ph-trip-v3";   // bump on asset change so installed copies refresh
 const ASSETS = [
   "./",
   "index.html",
   "styles.css",
   "app.js",
   "map.js",
+  "map-real.js",
+  "vendor/maplibre-gl.js",
+  "vendor/maplibre-gl.css",
+  "vendor/pmtiles.js",
   "data/trip.js",
   "data/coast.js",
   "manifest.webmanifest"

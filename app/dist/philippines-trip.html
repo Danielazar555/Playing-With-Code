@@ -642,6 +642,42 @@ svg.ic-sm{width:var(--icon-sm);height:var(--icon-sm)}
 #view.enter > *:nth-child(n+6){animation-delay:160ms}
 @media (prefers-reduced-motion:reduce){ #view.enter > *{animation:none} }
 
+/* =========================================================
+   Optional street basemap (MapLibre + local .pmtiles)
+   ========================================================= */
+.basemap-sw{position:absolute;left:var(--sp3);bottom:calc(var(--tab-h) + var(--safe-b) + 58px);
+  z-index:5;display:flex;background:rgba(4,24,47,.88);backdrop-filter:blur(12px);
+  border:1px solid var(--line);border-radius:var(--rad-sm);overflow:hidden}
+.basemap-sw button{padding:0 13px;min-height:34px;font-size:12.5px;font-weight:600;
+  color:var(--ink-2);letter-spacing:-.01em;transition:background var(--t-fast) var(--ease)}
+.basemap-sw button.on{background:var(--accent);color:#04222a}
+
+.rm-loading,.rm-setup{position:absolute;inset:0;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:var(--sp2);padding:var(--sp6) var(--sp5);
+  text-align:center;color:var(--ink-2);font-size:13.5px;line-height:1.55}
+.rm-setup .ic{width:34px;height:34px;color:var(--accent);margin-bottom:var(--sp1)}
+.rm-setup h4{margin:0;font-size:17px;font-weight:600;color:var(--ink);letter-spacing:-.015em}
+.rm-setup p{margin:0;max-width:34ch}
+.rm-setup code{font-family:var(--mono);font-size:12px;color:var(--accent);
+  background:rgba(255,255,255,.06);padding:1px 5px;border-radius:5px}
+.rm-setup .rm-how{color:var(--ink-3);font-size:12.5px}
+.rm-setup .rm-note{color:var(--ink-3);font-size:11.5px}
+.rm-setup .rm-err{color:var(--bad);font-weight:600}
+.rm-pick{display:inline-flex;align-items:center;min-height:44px;padding:0 var(--sp5);
+  background:var(--accent);color:#04222a;border-radius:var(--rad-sm);font-weight:600;
+  font-size:14px;cursor:pointer;margin-top:var(--sp1)}
+
+/* markers drawn over the street data */
+.rm-pin{width:13px;height:13px;border-radius:50%;border:2px solid #04182f;cursor:pointer;padding:0}
+.rm-pin.star{width:17px;height:17px;box-shadow:0 0 0 2px rgba(252,209,22,.55)}
+.rm-hub{width:22px;height:22px;border-radius:50%;border:2px solid #04182f;color:#04182f;
+  font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.rm-pop{font-family:var(--sans);max-width:210px}
+.rm-pop b{display:block;font-size:14.5px;color:#0b2036;letter-spacing:-.01em}
+.rm-pop i{display:block;font-style:normal;font-size:12px;color:#8a6a10;font-weight:600;margin-top:2px}
+.rm-pop p{margin:5px 0 0;font-size:12.5px;color:#33465c;line-height:1.45}
+.maplibregl-popup-content{border-radius:12px;padding:11px 13px}
+
 </style>
 </head>
 <body>
@@ -2106,7 +2142,12 @@ window.TRIP = {
     view.classList.add("nopad");
     view.innerHTML = `<div id="mapWrap" style="position:relative;width:100%;height:100%">
       <div id="mapCanvas" style="position:absolute;inset:0"></div>
+      <div id="realCanvas" style="position:absolute;inset:0;display:none"></div>
       <div class="map-topbar"><div class="map-modes" id="mapModes"></div></div>
+      <div class="basemap-sw" id="baseSw">
+        <button data-base="chart" class="on">Chart</button>
+        <button data-base="streets">Streets</button>
+      </div>
       <div class="map-filters"><div class="filter-row" id="mapFilters"></div></div>
     </div>`;
     const canvas = $("#mapCanvas");
@@ -2136,6 +2177,8 @@ window.TRIP = {
       MAP.setFilter(b.dataset.cat, !off);
     });
 
+    wireBasemap();
+
     if (pendingDay != null) { const d = T.days[pendingDay]; pendingDay = null;
       // switch mode chip to the hub
       const day = d;
@@ -2151,6 +2194,71 @@ window.TRIP = {
       if (p && p.hub) modes.querySelectorAll(".mode-chip").forEach(x => x.classList.toggle("on", x.dataset.mode === p.hub));
       requestAnimationFrame(() => { if (p&&p.hub) MAP.focusHub(p.hub); MAP.openPoi(id); });
     }
+  }
+
+  /* ---- optional street-level basemap (MapLibre + a local .pmtiles) ----
+     The chart map above always works with zero download. "Streets" adds real
+     OpenStreetMap detail from one local archive — served next to the app, or
+     picked once and kept in IndexedDB. Everything stays offline. */
+  let REAL = null, realReady = false;
+  function wireBasemap() {
+    const sw = $("#baseSw"); if (!sw) return;
+    if (!window.RealMap || !RealMap.available()) { sw.style.display = "none"; return; }
+    sw.addEventListener("click", async (e) => {
+      const b = e.target.closest("button[data-base]"); if (!b) return;
+      const mode = b.dataset.base;
+      sw.querySelectorAll("button").forEach(x => x.classList.toggle("on", x === b));
+      const chart = $("#mapCanvas"), real = $("#realCanvas");
+      if (mode === "chart") {
+        real.style.display = "none"; chart.style.display = "";
+        return;
+      }
+      chart.style.display = "none"; real.style.display = "";
+      if (realReady) return;
+      real.innerHTML = `<div class="rm-loading">Opening offline basemap…</div>`;
+      try {
+        REAL = new RealMap(real, T, { center: [120.6, 11.3], zoom: 6 });
+        const info = await REAL.mount();
+        realReady = true;
+        if (REAL.layerWarning) {
+          toast("Basemap opened, but its layers differ from the expected build");
+        }
+      } catch (err) {
+        realReady = false;
+        real.innerHTML = basemapSetupHTML();
+        const inp = real.querySelector("#pmFile");
+        inp && inp.addEventListener("change", async () => {
+          const f = inp.files && inp.files[0]; if (!f) return;
+          real.innerHTML = `<div class="rm-loading">Opening ${esc(f.name)}…</div>`;
+          try {
+            REAL = new RealMap(real, T, { center: [120.6, 11.3], zoom: 6 });
+            await REAL.mount(f);
+            realReady = true;
+            toast("Offline basemap loaded");
+          } catch (e2) {
+            real.innerHTML = basemapSetupHTML("That file could not be read as a .pmtiles archive.");
+            wireBasemapRetry(real);
+          }
+        });
+      }
+    });
+  }
+  function wireBasemapRetry(real) {
+    const inp = real.querySelector("#pmFile");
+    if (inp) inp.addEventListener("change", () => { realReady = false; $("#baseSw").querySelector('[data-base="streets"]').click(); });
+  }
+  function basemapSetupHTML(err) {
+    return `<div class="rm-setup">
+      ${icon("map")}
+      <h4>Add a street map for offline use</h4>
+      ${err ? `<p class="rm-err">${esc(err)}</p>` : ""}
+      <p>The chart map works with no download. For street names and towns, add one
+         <b>.pmtiles</b> archive of the Philippines — around 150&nbsp;MB, kept on your device.</p>
+      <p class="rm-how">Build it once with the script in <code>tiles/README.md</code>,
+         then either drop it at <code>tiles/philippines.pmtiles</code> or pick it here:</p>
+      <label class="rm-pick">Choose .pmtiles file<input id="pmFile" type="file" accept=".pmtiles" hidden></label>
+      <p class="rm-note">It is stored on this device only and reopens automatically next time.</p>
+    </div>`;
   }
 
   /* ======================= MONEY ======================= */

@@ -42,3 +42,26 @@ Two limits of a no-server build, handled rather than hidden:
   to the clipboard. (`.ics` is not in the host download allowlist, so the
   `downloads` capability is not an option.) Verified in a real iframe: copies a
   valid VCALENDAR with 22 events.
+
+## Optional street basemap
+
+| Asset | Source | Licence | Size |
+|---|---|---|---|
+| **MapLibre GL JS 5.6.1** (UMD build) | [maplibre/maplibre-gl-js](https://github.com/maplibre/maplibre-gl-js) | BSD-3-Clause | 917 KB + 68 KB CSS |
+| **PMTiles 4.5.0** | [protomaps/PMTiles](https://github.com/protomaps/PMTiles) | BSD-3-Clause | 20 KB |
+| Basemap tiles (not vendored — you build it) | Protomaps daily OSM build | Data © OpenStreetMap contributors, ODbL | ~120–180 MB at z14 |
+
+Chose the **v5 UMD** build deliberately: MapLibre 6 is ESM-only, and ES modules
+are blocked by CORS on `file://`, which would break opening the app from disk.
+The UMD build is a plain global.
+
+**The tile archive is not in this repo** — it is user data, far too large to
+commit, and this build environment has no network route to the tile sources.
+`tiles/make-tiles.sh` builds it in one command; `tiles/README.md` has the sizes.
+
+Verified here: both libraries load, the Chart↔Streets switch works, and with no
+archive present the Streets view shows a setup panel with a file picker rather
+than a broken map. **Not verified here:** rendering of actual OSM tiles — this
+environment cannot reach the tile sources, so the style's layer names follow the
+documented Protomaps v4 schema and the code logs a clear console warning (and a
+toast) if an archive's `vector_layers` don't match.
