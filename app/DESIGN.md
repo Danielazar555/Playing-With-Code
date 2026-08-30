@@ -309,6 +309,40 @@ confirmation the palette direction is right.
 A **Palawan Field Manual** overview artifact was published beforehand as a
 snapshot of the app at this point.
 
+## 5i. App-grade refinement (Pro Max `pro-rules.md`)
+
+Feedback: the UI still read as a hobby project rather than a shipped app. Pulled
+the tool's `pro-rules.md` — its stated purpose is *"when the user reports the UI
+'doesn't look professional'"* — and rebuilt the visual layer against it.
+
+**Root cause: everything was a floating rounded card.** Five rounds of appended
+patches had also left the stylesheet with competing rules (the cascade-collision
+risk `frontend-design` warns about). `styles.css` was rewritten from scratch as
+one tokenised system.
+
+| Rule (pro-rules.md) | Was | Now |
+|---|---|---|
+| Grouped lists over card stacks | every item a bordered, shadowed, floating box | **`.kit-group` / `.list-group`** — one inset surface, hairline dividers between rows (the native Settings pattern). Kit, Today's quests, spots and Coming-up all group. |
+| 4/8pt spacing rhythm | ad-hoc 11/13/15/17/22px | `--sp1…--sp8` tokens (4→40), used everywhere |
+| Consistent icon sizing | mixed 17/18/20/21/22/23px | `--icon-sm:20` / `--icon-md:24` only |
+| Stroke consistency | 1.6 and 1.7 mixed | single `--stroke:1.75` |
+| Press states must not shift layout | `transform:scale(.985)` on tap | background-only `:active` — bounds never move |
+| Elevation, not glow | heavy drop-shadow on every card | elevation via surface lightness (`--s1`/`--s2`); one `--lift` shadow reserved for genuinely floating UI (popup, toast) |
+| One accent | aqua + brass + teal + coral + violet + sun all competing | **`--accent` = interactive**, **`--brass` = earned only**, semantic colours for status only |
+| Filled/outline discipline | quest circle showed the category icon *and* a camera button beside it | quest circle is a plain tick control; category no longer duplicated |
+
+Also: tab bar slimmed to 56pt with a proper translucent blur, hero is the only
+serif moment, `.q-pts` colour now comes from the system (muted → brass when
+earned) instead of an inline per-category colour, and toast copy dropped emoji
+for plain product strings ("Quest complete · +25").
+
+**Regression caught and fixed:** renaming the colour tokens broke 16 inline
+`var(--…)` references in `app.js` (the selected tip-% state had gone invisible).
+All remapped, and a check now asserts every token referenced in JS resolves.
+
+Verified: 0 console errors, no horizontal overflow, keyboard toggles quests and
+checklist rows, no touch target under 32px, still boots offline.
+
 ## 6. Architecture / files
 
 ```

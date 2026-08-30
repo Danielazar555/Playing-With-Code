@@ -90,7 +90,7 @@
       const key = await storePhoto(file);
       if (!state.quests[q.id]) toggleQuest(q.id);
       addMemory({ title: q.t, questId: q.id, note: "", photo: key });
-      toast(key ? "📸 Memory saved" : "🏆 Quest done");
+      toast(key ? "Memory saved" : "Quest complete");
       if (after) after();
     });
   }
@@ -140,8 +140,8 @@
   };
 
   /* ======================= gamification ======================= */
-  const QCAT = { photo:{n:"camera",c:"var(--sun)"}, do:{n:"wave",c:"var(--aqua)"},
-                 culture:{n:"chat",c:"var(--violet-t)"}, rest:{n:"moon",c:"var(--teal-t)"} };
+  const QCAT = { photo:{n:"camera",c:"var(--brass)"}, do:{n:"wave",c:"var(--accent)"},
+                 culture:{n:"chat",c:"var(--plum)"}, rest:{n:"moon",c:"var(--ok)"} };
   const questsFor = (hub) => T.quests.filter(q => q.hub === hub);
   function questStats() {
     const done = T.quests.filter(q => state.quests[q.id]);
@@ -186,7 +186,7 @@
     const p = POI[id]; if (!p) return;
     if (state.saved.some(s => s.poi === id)) { toast("Already saved"); return; }
     addSaved({ kind:"place", text:p.name, url:p.url || ("https://www.google.com/maps/search/?api=1&query="+p.lat+","+p.lng), poi:id });
-    toast("★ Saved to your list");
+    toast("Saved to your list");
   };
 
   /* ======================= calendar (.ics) ======================= */
@@ -220,7 +220,7 @@
       a.href = url; a.download = "philippines-2027.ics";
       document.body.appendChild(a); a.click(); a.remove();
       setTimeout(() => URL.revokeObjectURL(url), 4000);
-      toast("📅 Calendar file ready");
+      toast("Calendar file ready");
     } catch (e) { toast("Couldn't create calendar file"); }
   }
 
@@ -249,10 +249,10 @@
     const m = QCAT[q.cat] || QCAT.do;
     const hasPhoto = state.memories.some(x => x.questId === q.id && x.photo);
     return `<div class="quest ${on?"done":""}">
-      <div class="q-check" style="${on?'':'color:'+m.c}" data-quest="${q.id}" role="checkbox" tabindex="0" aria-checked="${on}" aria-label="${esc(q.t)}">${on?"✓":icon(m.n)}</div>
+      <div class="q-check" data-quest="${q.id}" role="checkbox" tabindex="0" aria-checked="${on}" aria-label="${esc(q.t)}">${on?icon("tick","ic-sm"):""}</div>
       <div class="q-body" data-quest="${q.id}"><div class="q-t">${esc(q.t)}</div><div class="q-h">${esc(q.h)}</div></div>
       <button class="q-cam ${hasPhoto?'has':''}" data-qcam="${q.id}" aria-label="Add a photo for ${esc(q.t)}">${icon("camera","ic-sm")}</button>
-      <div class="q-pts" style="color:${m.c}">+${q.pts}</div>
+      <div class="q-pts">+${q.pts}</div>
     </div>`;
   }
   function stampGrid() {
@@ -261,7 +261,7 @@
     return `<div class="stamp-grid">` + done.map(q => {
       const m = QCAT[q.cat] || QCAT.do;
       const hub = T.hubs.find(h => h.id === q.hub);
-      const col = hub ? hub.color : "var(--aqua)";
+      const col = hub ? hub.color : "var(--accent)";
       return `<div class="stamp" style="border-color:${col};color:${col}" title="${esc(q.t)}">${icon(m.n)}<b>${esc((hub?hub.name:"Anywhere").split(" ")[0])}</b></div>`;
     }).join("") + `</div>`;
   }
@@ -327,12 +327,12 @@
       // today's quests: day's hub + any global not-yet-done
       const todays = questsFor(day.hub).concat(questsFor(null).filter(q => !state.quests[q.id])).slice(0, 4);
       if (todays.length) {
-        html += `<div class="section-h">Today's quests</div>` + todays.map(questCard).join("");
+        html += `<div class="section-h">Today's quests</div><div class="list-group">` + todays.map(questCard).join("") + `</div>`;
       }
       html += quickAdd();
       if (day.pins && day.pins.length) {
-        html += `<div class="section-h">Today's spots</div>`;
-        html += day.pins.map(pinCard).join("");
+        html += `<div class="section-h">Today's spots</div><div class="list-group">`;
+        html += day.pins.map(pinCard).join("") + `</div>`;
         html += `<button class="link-btn" data-goday="${idx}">See today on the map ◈</button>`;
       }
       html += nextThreeDaysCard(idx + 1);
@@ -346,7 +346,7 @@
     view.querySelectorAll("[data-quest]").forEach(el => el.addEventListener("click", () => {
       const id = el.dataset.quest, was = !!state.quests[id];
       toggleQuest(id);
-      if (!was) toast("🏆 +" + (T.quests.find(q=>q.id===id)||{}).pts + " — nice!");
+      if (!was) toast("Quest complete · +" + (T.quests.find(q=>q.id===id)||{}).pts);
       renderToday();
     }));
     view.querySelectorAll("[data-qcam]").forEach(el => el.addEventListener("click", (e) => {
@@ -362,7 +362,7 @@
       pickPhoto(async (file) => {
         const key = await storePhoto(file);
         addMemory({ title: day ? day.title : "Memory", note: "", photo: key });
-        toast(key ? "📸 Added to your journal" : "Journal note added");
+        toast(key ? "Added to your journal" : "Journal note added");
         state.kitOpen = "journal"; LS.set("kitOpen", state.kitOpen); go("kit");
       });
     });
@@ -371,7 +371,7 @@
   function nextThreeDaysCard(start) {
     const items = T.days.slice(start, start + 3);
     if (!items.length) return "";
-    let h = `<div class="section-h">Coming up</div>`;
+    let h = `<div class="section-h">Coming up</div><div class="list-group">`;
     items.forEach((d, i) => {
       h += `<div class="card tap" data-goday="${start + i}">
         <div class="day-top"><span class="day-date">${esc(d.d)}</span>
@@ -379,7 +379,7 @@
         <div class="day-title">${esc(d.title)}</div>
         <div class="day-body">${esc(d.body)}</div></div>`;
     });
-    return h;
+    return h + `</div>`;
   }
 
   function pinCard(id) {
@@ -410,15 +410,15 @@
     T.days.forEach((d, i) => {
       const hub = T.hubs.find(h => h.id === d.hub);
       const isNow = i === idx;
-      const dotColor = hub ? hub.color : "#6f8aa1";
+      const dotColor = hub ? hub.color : "#88a6a3";
       const last = i === T.days.length - 1;
       html += `<div class="day">
         <div class="day-rail">
-          <div class="day-dot" style="background:${dotColor}${isNow?";box-shadow:0 0 0 4px #2ea9c955":""}"></div>
+          <div class="day-dot" style="background:${dotColor}${isNow?";box-shadow:0 0 0 4px #35c2cf66":""}"></div>
           ${last?"":'<div class="day-line"></div>'}
         </div>
         <div class="day-c">
-          <div class="card tap ${isNow?"now":""}" data-goday="${i}" style="${isNow?"border-color:var(--aqua)":""}">
+          <div class="card tap ${isNow?"now":""}" data-goday="${i}" style="${isNow?"border-color:var(--accent)":""}">
             <div class="day-top">
               <span class="day-date">${esc(d.d)}${isNow?" · TODAY":""}</span>
               <span class="type-tag t-${d.type}">${d.type}</span>
@@ -503,7 +503,7 @@
         <button class="fx-swap" id="fxSwap">⇅</button>
         <select id="fxTo">${opt(state.fxTo)}</select>
       </div>
-      <div id="fxOut" style="font-size:26px;font-weight:700;color:var(--aqua);margin:6px 2px"></div>
+      <div id="fxOut" style="font-size:26px;font-weight:700;color:var(--accent);margin:6px 2px"></div>
       <div class="quick-row" id="fxQuick"></div>
       <div class="fx-note">Rates are editable estimates — tap a rate to adjust before you travel.</div>
       <div class="quick-row" id="fxRates"></div>
@@ -517,9 +517,9 @@
       </div>
       <div class="quick-row" id="tipPct"></div>
       <div class="fx-row" style="margin-top:8px">
-        <span style="font-size:13px;color:var(--mut)">Split between</span>
+        <span style="font-size:13px;color:var(--ink-2)">Split between</span>
         <input id="tipPpl" type="number" inputmode="numeric" value="2" style="max-width:80px">
-        <span style="font-size:13px;color:var(--mut)">people</span>
+        <span style="font-size:13px;color:var(--ink-2)">people</span>
       </div>
       <div class="tip-calc-grid" style="margin-top:10px">
         <div class="tc-out"><div class="v" id="tipTip">–</div><div class="l">tip</div></div>
@@ -552,7 +552,7 @@
     <div class="calc" id="budCard">
       <h3>${icon('money')} Trip budget (per person)</h3>
       <div class="fx-row" style="margin-bottom:12px">
-        <span style="font-size:13px;color:var(--mut)">Show in</span>
+        <span style="font-size:13px;color:var(--ink-2)">Show in</span>
         <select id="budCur">${opt("USD")}</select>
       </div>
       <div id="budRows"></div>
@@ -596,7 +596,7 @@
     let tipP = 10;
     const bill = $("#tipBill"), tcur = $("#tipCur"), ppl = $("#tipPpl");
     function paintPct() {
-      $("#tipPct").innerHTML = [0,5,10,15].map(p => `<button data-p="${p}" style="${p===tipP?"background:var(--teal);color:#04141c;border-color:var(--teal)":""}">${p}%</button>`).join("");
+      $("#tipPct").innerHTML = [0,5,10,15].map(p => `<button data-p="${p}" class="${p===tipP?'on':''}">${p}%</button>`).join("");
     }
     function tipCalc() {
       const b = parseFloat(bill.value) || 0;
@@ -625,7 +625,7 @@
       rows += `<div class="bud-total"><span>Ballpark total</span>
         <span class="bud-v">${money(lo,c)} – ${money(hi,c)}</span></div>`;
       rows += `<div class="range-lbl" style="margin-top:14px"><span>lean</span><span>comfortable</span></div>
-        <div class="bar" style="background:linear-gradient(90deg,var(--teal),var(--sun))"></div>
+        <div class="bar" style="background:linear-gradient(90deg,var(--ok),var(--brass))"></div>
         <div class="fx-note">Excludes the Tao booking-protection add-on (~$90) and travel insurance.</div>`;
       $("#budRows").innerHTML = rows;
     }
@@ -652,7 +652,7 @@
     const groups = [["coron","Coron"],["tao","Tao"],["elnido","El Nido"],["moalboal","Moalboal"],[null,"Anywhere"]];
     groups.forEach(([hub,label]) => {
       const qs = questsFor(hub); if (!qs.length) return;
-      const col = hub ? ((T.hubs.find(x=>x.id===hub)||{}).color||"var(--aqua)") : "var(--aqua)";
+      const col = hub ? ((T.hubs.find(x=>x.id===hub)||{}).color||"var(--accent)") : "var(--accent)";
       h += `<div class="kit-grp"><i class="grp-dot" style="background:${col}"></i>${label}</div>` + qs.map(questCard).join("");
     });
     return h;
@@ -767,6 +767,7 @@
     const chkDone = T.checklist.filter(c => state.checks[c.id]).length;
     const memN = state.memories.length;
     let html = pointsStrip();
+    html += `<div class="kit-group">`;
     html += kitSection("quests","flag","Quests & passport",`${s.count}/${s.of} · ${s.pts} pts`, bQuests);
     html += kitSection("journal","book","Trip journal", memN?`${memN} ${memN===1?"entry":"entries"}`:"photos · notes", bJournal);
     html += kitSection("saved","bookmark","Saved & tickets", savedN?`${savedN} saved`:"links · notes · vault", bSaved);
@@ -774,6 +775,7 @@
     html += kitSection("phrases","chat","Phrasebook","offline Tagalog", bPhrases);
     html += kitSection("checklist","check","Booking checklist",`${chkDone}/${T.checklist.length} done`, bChecklist);
     html += kitSection("tips","bulb","Tips & know-how",`${T.tips.length} cards`, bTips);
+    html += `</div>`;
     html += `<div class="center-mut">Everything here works offline. Add to Home Screen for the full app.</div>`;
     view.innerHTML = html;
     wireKit();
@@ -788,7 +790,7 @@
     // quests
     view.querySelectorAll("[data-quest]").forEach(el => el.addEventListener("click", () => {
       const id = el.dataset.quest, was = !!state.quests[id];
-      toggleQuest(id); if (!was) toast("🏆 +" + (T.quests.find(q=>q.id===id)||{}).pts + " — nice!");
+      toggleQuest(id); if (!was) toast("Quest complete · +" + (T.quests.find(q=>q.id===id)||{}).pts);
       renderKit();
     }));
     view.querySelectorAll("[data-qcam]").forEach(el => el.addEventListener("click", (e) => {
@@ -810,7 +812,7 @@
       const key = await storePhoto(staged);
       const idx = todayIndex(); const day = (idx>=0 && idx<T.days.length) ? T.days[idx] : null;
       addMemory({ title: day ? day.title : "Moment", note, photo: key });
-      toast("📖 Added to your journal"); renderKit();
+      toast("Added to your journal"); renderKit();
     });
     view.querySelectorAll("[data-delmem]").forEach(el => el.addEventListener("click", async () => { await delMemory(el.dataset.delmem); renderKit(); }));
     // packing
