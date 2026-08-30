@@ -57,7 +57,7 @@
   --rad-sm:10px; --rad:12px; --rad-lg:16px; --rad-xl:20px;
 
   /* ---- icons: two sizes, one stroke ---- */
-  --icon-sm:20px; --icon-md:24px; --stroke:1.75;
+  --icon-sm:20px; --icon-md:24px; --stroke:2;   /* Lucide is drawn on a 24px grid at stroke 2 */
 
   /* ---- motion ---- */
   --t-fast:120ms; --t:200ms; --ease:cubic-bezier(.2,.7,.3,1);
@@ -589,3 +589,8 @@ svg.ic-sm{width:var(--icon-sm);height:var(--icon-sm)}
 
 /* selected state for segmented quick-choice buttons (tip %) */
 .quick-row button.on{background:var(--accent);border-color:var(--accent);color:#04222a}
+
+/* friendly empty-state scenes (same visual language as the hero) */
+.empty-art{max-width:150px;margin:var(--sp3) auto var(--sp2);opacity:.95}
+.empty-art svg{width:100%;height:auto;display:block}
+.kit-empty,.passport-empty{text-align:center}

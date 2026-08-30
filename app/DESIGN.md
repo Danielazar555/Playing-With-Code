@@ -384,6 +384,37 @@ point. Phone away, eyes up."*
    overlaid each other. They now merge into one — "1·6 Mactan". The label halo
    also dropped from 29% to 14% of font size.
 
+## 5k. Vendored assets — icons, celebration, empty-state art
+
+Researched icon sets, illustration sources and motion libraries for this class of
+app. Hard constraint: the app must boot with **no network**, so anything adopted
+has to be vendored, small and permissively licensed.
+
+**Adopted — Lucide icons (ISC).** Replaced the 30 hand-drawn glyphs with 34
+real Lucide icons, inlined as an SVG `<symbol>` sprite (~7 KB). Lucide is the set
+the tool's own `pro-rules.md` names, and it fixes the optical inconsistency of a
+hand-rolled family. `--stroke` moved to 2 to match Lucide's 24px grid. A build
+check asserts every `#i-*` referenced in JS exists in the sprite.
+
+**Built rather than imported:**
+- **Celebration burst** — a ~1.5 KB `celebrate()` in the Philippine flag colours
+  fires when a quest is newly completed. `canvas-confetti` (ISC) would have cost
+  ~25 KB, a large share of an offline payload for one flourish; rolling our own
+  also let it use the flag palette. Silent under `prefers-reduced-motion`, and
+  the canvas removes itself when the animation ends (verified).
+- **Empty-state scenes** — `emptyArt()` draws small sun/island/palm/water scenes
+  for the empty journal, passport and saved vault, in the same visual language as
+  the hero rather than importing a clashing illustration set.
+
+**Rejected, with reasons** (full table in `app/CREDITS.md`): FormKit AutoAnimate
+(animates children of a *persistent* parent; this app replaces whole sections via
+`innerHTML`, so it would have nothing to animate), unDraw/Storyset (different
+illustration language, attribution burden), flag-icons (the 8-ray sun is already
+a stronger mark than a rectangular flag).
+
+The service-worker cache was bumped to `ph-trip-v2` so existing installs pick up
+the new sprite and palette.
+
 ## 6. Architecture / files
 
 ```

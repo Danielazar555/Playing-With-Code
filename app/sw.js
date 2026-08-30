@@ -1,6 +1,6 @@
 /* Offline-first service worker. Cache-first for the app shell so the
    whole planner works on the Tao expedition with zero signal. */
-const CACHE = "ph-trip-v1";
+const CACHE = "ph-trip-v2";   // bumped: Lucide sprite + palette change must reach existing installs
 const ASSETS = [
   "./",
   "index.html",

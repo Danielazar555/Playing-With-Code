@@ -164,6 +164,52 @@
     transit:{n:"plane",t:"On the move",b:"Long haul. Sleep when you can — the islands are close."}
   };
 
+  /* A small celebration burst in the Philippine flag colours.
+     Purpose-built (~1.5 KB) instead of pulling a 25 KB confetti library —
+     the app has to boot with no signal. Silent under reduced-motion. */
+  function celebrate(originEl) {
+    if (window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const r = originEl ? originEl.getBoundingClientRect() : null;
+    const ox = r ? r.left + r.width / 2 : innerWidth / 2;
+    const oy = r ? r.top + r.height / 2 : innerHeight / 3;
+    const cv = document.createElement("canvas");
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    cv.width = innerWidth * dpr; cv.height = innerHeight * dpr;
+    cv.style.cssText = "position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:60";
+    document.body.appendChild(cv);
+    const g = cv.getContext("2d"); g.scale(dpr, dpr);
+    const COLORS = ["#fcd116", "#ffffff", "#0038a8", "#ce1126", "#3fd9e4"];
+    const bits = [];
+    for (let i = 0; i < 34; i++) {
+      const a = (Math.PI * 2 * i) / 34 + Math.random() * 0.4;
+      const sp = 3.2 + Math.random() * 4.2;
+      bits.push({ x: ox, y: oy, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 2.2,
+                  s: 4 + Math.random() * 4, rot: Math.random() * 6.28,
+                  vr: (Math.random() - .5) * .3, c: COLORS[i % COLORS.length], life: 1 });
+    }
+    let raf;
+    const t0 = performance.now();
+    (function frame(t) {
+      const dt = Math.min(32, t - (frame.last || t)); frame.last = t;
+      g.clearRect(0, 0, innerWidth, innerHeight);
+      let alive = false;
+      for (const b of bits) {
+        b.vy += 0.16 * (dt / 16); b.vx *= 0.995;
+        b.x += b.vx * (dt / 16); b.y += b.vy * (dt / 16);
+        b.rot += b.vr; b.life -= 0.008 * (dt / 16);
+        if (b.life > 0 && b.y < innerHeight + 40) {
+          alive = true;
+          g.save(); g.translate(b.x, b.y); g.rotate(b.rot);
+          g.globalAlpha = Math.max(0, Math.min(1, b.life));
+          g.fillStyle = b.c; g.fillRect(-b.s / 2, -b.s / 2, b.s, b.s * 0.6);
+          g.restore();
+        }
+      }
+      if (alive && t - t0 < 2600) raf = requestAnimationFrame(frame);
+      else { cancelAnimationFrame(raf); cv.remove(); }
+    })(performance.now());
+  }
+
   /* ======================= saved / vault ======================= */
   function addSaved(item) {
     item.id = "s" + Date.now() + Math.floor(Math.random()*99);
@@ -274,6 +320,30 @@
     </svg></div>`;
   }
 
+  /* Empty states get a small scene in the app's own visual language rather
+     than an imported illustration set that would clash with it.
+     Horizon at y=46; anything standing on the island is anchored to it. */
+  function emptyArt(kind) {
+    const sun  = '<circle cx="99" cy="15" r="7.5" fill="#fcd116" opacity=".9"/>';
+    const isle = '<path d="M22 47 q30-19 60 0 z" fill="#0a2547"/>';
+    const palm = '<g stroke="#43d68b" stroke-width="2" fill="none" stroke-linecap="round">' +
+                 '<path d="M52 47 q1-9 2-14"/>' +
+                 '<path d="M54 33 q-9-4-13 2"/><path d="M54 33 q9-4 13 2"/><path d="M54 33 q-2-9 4-11"/>' +
+                 '</g>';
+    const sea  = '<path d="M0 50 q20-6 40 0 t40 0 t40 0 V70 H0 Z" fill="#12558c" opacity=".6"/>' +
+                 '<path d="M0 58 q20-5 40 0 t40 0 t40 0 V70 H0 Z" fill="#3fd9e4" opacity=".22"/>';
+    const body = {
+      journal:  sun + isle + palm + sea,
+      passport: sun + isle + palm +
+                '<circle cx="52" cy="34" r="15" fill="none" stroke="#fcd116" stroke-width="2" ' +
+                'stroke-dasharray="5 4" opacity=".8"/>' + sea,
+      saved:    sun + isle +
+                '<path d="M44 24 h18 a2 2 0 0 1 2 2 v20 l-11-6 -11 6 v-20 a2 2 0 0 1 2-2z" ' +
+                'fill="#0a2547" stroke="#3fd9e4" stroke-width="2" stroke-linejoin="round"/>' + sea
+    }[kind] || sun + isle + sea;
+    return `<div class="empty-art" aria-hidden="true"><svg viewBox="0 0 120 70">${body}</svg></div>`;
+  }
+
   function legPills() {
     const legs = [["mactan1","Cebu"],["coron","Coron"],["tao","Tao"],["elnido","El Nido"],["moalboal","Moalboal"]];
     return legs.map(([id,label]) => {
@@ -306,7 +376,7 @@
   }
   function stampGrid() {
     const done = T.quests.filter(q => state.quests[q.id]);
-    if (!done.length) return `<div class="passport-empty">No stamps yet — finish a quest and the first one lands here.</div>`;
+    if (!done.length) return emptyArt("passport") + `<div class="passport-empty">No stamps yet — finish a quest and the first one lands here.</div>`;
     return `<div class="stamp-grid">` + done.map(q => {
       const m = QCAT[q.cat] || QCAT.do;
       const hub = T.hubs.find(h => h.id === q.hub);
@@ -395,7 +465,7 @@
     view.querySelectorAll("[data-quest]").forEach(el => el.addEventListener("click", () => {
       const id = el.dataset.quest, was = !!state.quests[id];
       toggleQuest(id);
-      if (!was) toast("Quest complete · +" + (T.quests.find(q=>q.id===id)||{}).pts);
+      if (!was) { celebrate(el); toast("Quest complete · +" + (T.quests.find(q=>q.id===id)||{}).pts); }
       renderToday();
     }));
     view.querySelectorAll("[data-qcam]").forEach(el => el.addEventListener("click", (e) => {
@@ -715,7 +785,7 @@
       <button id="jAdd" class="qa-btn">${icon('plus','ic-sm')} Add to journal</button>
     </div>`;
     if (!state.memories.length) {
-      h += `<div class="kit-empty">Nothing here yet. Every quest photo lands here, and anything you add above — by Moalboal you'll have the whole trip in one scroll.</div>`;
+      h += emptyArt("journal") + `<div class="kit-empty">Nothing here yet. Every quest photo lands here, and anything you add above — by Moalboal you'll have the whole trip in one scroll.</div>`;
       return h;
     }
     // group by day (calendar date)
@@ -744,7 +814,7 @@
       <button id="svAdd" class="qa-btn">${icon('plus','ic-sm')} Save</button>
     </div>`;
     if (!state.saved.length) {
-      h += `<div class="kit-empty">Empty for now. Drop a restaurant link, a ticket number, a tip you don't want to lose — it all lives here, offline. You can also save any place straight from the map.</div>`;
+      h += emptyArt("saved") + `<div class="kit-empty">Empty for now. Drop a restaurant link, a ticket number, a tip you don't want to lose — it all lives here, offline. You can also save any place straight from the map.</div>`;
     } else {
       h += state.saved.map(s => {
         const ic = icon(s.kind==="place"?"bookmark":s.url?"link":"chat");
@@ -839,7 +909,8 @@
     // quests
     view.querySelectorAll("[data-quest]").forEach(el => el.addEventListener("click", () => {
       const id = el.dataset.quest, was = !!state.quests[id];
-      toggleQuest(id); if (!was) toast("Quest complete · +" + (T.quests.find(q=>q.id===id)||{}).pts);
+      toggleQuest(id);
+      if (!was) { celebrate(el); toast("Quest complete · +" + (T.quests.find(q=>q.id===id)||{}).pts); }
       renderKit();
     }));
     view.querySelectorAll("[data-qcam]").forEach(el => el.addEventListener("click", (e) => {
